@@ -3,12 +3,12 @@
 package absyn;
 
 public class FunctionDec extends Dec {
-  public Type type; 
+  public NameTy type; 
   public String function; 
   public VarDecList param_list; 
   public CompoundExp body; 
 
-  public FunctionDec( int row, int col, Type type, String function, VarDecList param_list, CompoundExp body ) {
+  public FunctionDec( int row, int col, NameTy type, String function, VarDecList param_list, CompoundExp body ) {
     this.row = row;
     this.col = col;
     this.type = type;

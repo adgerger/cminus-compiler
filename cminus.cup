@@ -93,7 +93,7 @@ non terminal params;
 non terminal Integer addop, relop, mulop;
 non terminal var, param, statem_list;
 
-non terminal Type type_specifier;
+non terminal NameTy type_specifier;
 
 non terminal VarDecList param_list, local_declarations;
 
@@ -148,11 +148,11 @@ var_declaration   ::=  type_specifier:t ID:i SEMI
 
 type_specifier ::= INT:i
                      {: System.out.println("Found an integer!");
-                     RESULT = new Type(ileft, iright, Type.INT); :}
+                     RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                   | VOID:v
-                     {: RESULT = new Type(vleft, vright, Type.VOID); :}
+                     {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
                   | BOOL:b
-                     {: RESULT = new Type(bleft, bright, Type.BOOL); :}
+                     {: RESULT = new NameTy(bleft, bright, NameTy.BOOL); :}
                   ;                    
 
 

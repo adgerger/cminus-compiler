@@ -72,10 +72,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
-  public void visit( Type exp, int level ) {
-    if(exp.type == Type.INT) { 
+  public void visit( NameTy exp, int level ) {
+    if(exp.type == NameTy.INT) { 
       System.out.println("Type: INTEGER");
-    } else if (exp.type == Type.BOOL) {
+    } else if (exp.type == NameTy.BOOL) {
       System.out.println("Type: BOOL");
     } else {
       System.out.println("Type: VOID");
