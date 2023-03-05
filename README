@@ -1,5 +1,7 @@
 A parser implementation for the Tiny programming language using JFlex and CUP..
 
+Checkpoint 1
+
   Please note that you need to modify the paths for CLASSPATH, JFLEX, and CUP in 
 the Makefile so that the related commands can be found on your particular 
 machine.  For example, the given settings in Makefile are for the Linux 
