@@ -1,7 +1,7 @@
 package absyn;
 
 public abstract class VarDec extends Dec {
-    public Type type; 
+    public NameTy type; 
     public String name; 
 
     public void accept( AbsynVisitor visitor, int level ) {
