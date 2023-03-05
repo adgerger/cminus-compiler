@@ -194,8 +194,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println("CompoundExp: ");
     level++;
 
-    exp.decs.accept(this, level); // print variable declarations
-    exp.exps.accept(this, level); //print other expressions
+    visit(exp.decs, level);
+    visit(exp.exps, level);
+    //exp.decs.accept(this, level); // print variable declarations
+    //exp.exps.accept(this, level); //print other expressions
 
   }
 
@@ -227,7 +229,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
   
   }
 
-  /* Make changes */
   public void visit( VarDecList exp, int level ) {
     while(exp != null) {
       if(exp.head != null) {
@@ -236,6 +237,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
       exp = exp.tail;
     }
   }
+
 
   public void visit( SimpleVar exp, int level ) {
     indent( level );

@@ -24,6 +24,8 @@ void main(void) {
 
   fac = input(4);
 
+  x = fac;
+
 }
  
 

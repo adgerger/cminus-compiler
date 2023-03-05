@@ -132,8 +132,7 @@ declaration_list  ::= declaration_list:dl declaration:d
                            RESULT = dl;
                         :}
                      | declaration:d
-                        {:
-                        RESULT = new DecList(d, null); :}
+                        {: RESULT = new DecList(d, null); :}
                      ;
 
 // add function prototype
@@ -361,9 +360,12 @@ signed_factor   ::= UB signed_factor
                   ;
 
 factor          ::= LPAREN  expression  RPAREN
-                  | var
                      {:
                         //
+                     :}
+                  | var:vr
+                     {:
+                        RESULT = new VarExp(vrleft, vrright, (Var)vr);
                      :}
                   | call:cl
                   {:
@@ -375,6 +377,9 @@ factor          ::= LPAREN  expression  RPAREN
                         RESULT = new IntExp(nleft, nright, n);
                      :}  
                   | TRUTH
+                     {:
+                        //
+                     :}
                   ;
 
 call            ::= ID:name  LPAREN  args:as  RPAREN 
