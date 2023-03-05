@@ -15,11 +15,16 @@ void main(void) {
 }
 */
 
+int a;
+
 void main(void) {
   int x; 
   int fac;
 
   x = 5;
+
+  fac = input();
+  
 }
  
 

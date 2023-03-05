@@ -17,26 +17,20 @@ public class ShowTreeVisitor implements AbsynVisitor {
     } 
   }
 
-/* Previous declaration
   public void visit( AssignExp exp, int level ) {
     indent( level );
     System.out.println( "AssignExp:" );
     level++;
+    
     exp.lhs.accept( this, level );
+
+    level++;
+    indent(level);
+    System.out.println(" = ");
+
     exp.rhs.accept( this, level );
   }
- */
 
- public void visit( AssignExp exp, int level ) {
-  indent(level);
-  System.out.println("AssignExp: ");
-  level++;
-  visit(exp.lhs, level);
-  level++;
-  indent(level);
-  System.out.println(" = ");
-  visit(exp.rhs, level);
- }
 
   public void visit( IfExp exp, int level ) {
     indent( level );
@@ -100,7 +94,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     level++;
     System.out.println("VarExp: ");
-    visit(exp.vr, level);
+    exp.vr.accept(this, level);
   }
 
 
@@ -114,14 +108,14 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
 
     System.out.println("ArrDec: ");
-    
-    visit(exp.type, level);
+
+    exp.type.accept(this, level);
     
     indent( level );
 
     System.out.println("Array Name: " + exp.name);
     if(exp.size != null) {
-      visit(exp.size, level); //print the size of the array
+      exp.size.accept(this, level); //print the size of the array
     }
   }
 
@@ -129,9 +123,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit( VarDec exp, int level ) {
 
     if(exp instanceof SingleDec) {
-      visit((SingleDec)exp, level);
+      ((SingleDec)exp).accept(this, level);
     } else if(exp instanceof ArrayDec) {
-      visit((ArrayDec)exp, level);
+      ((ArrayDec)exp).accept(this, level);
     }
   }
 
@@ -151,7 +145,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.println("SimpleDec: ");
     indent(level);
-    visit(exp.type, level);
+    exp.type.accept(this, level);
     level++;
     indent(level);
     System.out.println("SimpleDec name: " + exp.name);
@@ -162,8 +156,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println("CompoundExp: ");
     level++;
-    visit(exp.decs, level); // print variable declarations
-    visit(exp.exps, level); // print other expressions
+
+    exp.decs.accept(this, level); // print variable declarations
+    exp.exps.accept(this, level); //print other expressions
+
   }
 
   /* Make changes to stepping of the levels */
@@ -171,11 +167,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println("FunctionDec: ");
     level++;
-    visit(exp.type, level);
+
+    exp.type.accept(this, level);
     indent( level );
-    System.out.println("Function: " + exp.function);
+
     visit(exp.param_list, level);
-    visit(exp.body, level); 
+
+    exp.body.accept(this, level);
   }
 
 
@@ -192,7 +190,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit( VarDecList exp, int level ) {
     while(exp != null) {
       if(exp.head != null) {
-        visit(exp.head, level);
+        exp.head.accept(this, level);
       }
       exp = exp.tail;
     }
@@ -210,9 +208,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
   // Variable
   public void visit( Var exp, int level ) {
     if(exp instanceof IndexVar) {
-      visit((IndexVar)exp, level);
+      ((IndexVar)exp).accept(this, level);
     } else if(exp instanceof SimpleVar) {
-      visit((SimpleVar)exp, level);
+      ((SimpleVar)exp).accept(this, level);
     }
   }
 
@@ -220,11 +218,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit( Exp exp, int level ) {
     
     if(exp instanceof VarExp) {
-      visit((VarExp)exp, level);
+      ((VarExp)exp).accept(this, level);
+
     } else if (exp instanceof AssignExp) {
-      visit((AssignExp)exp, level);
+      ((AssignExp)exp).accept(this, level);
+
     }  else if(exp instanceof IntExp) {
-      visit((IntExp)exp, level);
+      ((IntExp)exp).accept(this, level);
+
+    }  else if(exp instanceof CallExp) {
+      ((CallExp)exp).accept(this, level);
+
     }
 
   }
@@ -235,10 +239,23 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     indent(level);
     System.out.println("IndexVarName: " + exp.name);
-    visit(exp.idx, level);
+    exp.idx.accept(this, level);
   }
 
 
+  public void visit( CallExp exp, int level ) {
+    indent(level);
+    System.out.println("CallExp: ");
+    
+    /* Print function name */
+    level++;
+    indent( level );
+    System.out.println(exp.name);
+    
+    
+    visit(exp.args, level); /* Print arguments */
+
+  }
 
 
 

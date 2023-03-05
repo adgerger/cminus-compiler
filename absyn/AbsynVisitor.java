@@ -37,5 +37,8 @@ public interface AbsynVisitor {
 
   public void visit( IndexVar exp, int level );
 
+  public void visit( CallExp exp, int level );
+
+
 
 }

@@ -84,7 +84,9 @@ non terminal Dec var_declaration, declaration, fun_declaration;
 non terminal Exp statem, expression;
 non terminal compound_stmt, expression_stmt, selection_stmt, iteration_stmt, return_stmt, ubool_expression, additive_expression;
 non terminal DecList program;
-non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call, args, arg_list ;
+non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call;
+
+non terminal ExpList args, arg_list;
 
 non terminal Dec fun_prototype;
 
@@ -197,7 +199,6 @@ param       ::= type_specifier:type ID:name
 
 compound_stmt     ::=  LCURLY local_declarations:ldec statem_list:sl RCURLY
                      {:
-                        System.out.println("The statement list is " + sl);
                         
                         RESULT = new CompoundExp(slleft, slright, ldec, (ExpList)sl);
                      :}
@@ -212,15 +213,12 @@ local_declarations      ::=  local_declarations:ldec var_declaration:var_dec
 
 statem_list    ::= statem_list:st_list statem:st 
                   {:
-                     System.out.println("The expression statement being added to statement list is " + st);
                      RESULT = new ExpList(st, (ExpList)st_list); // list of expressions in the function
                   :} |
                  ;
 
 statem      ::=  expression_stmt:e_stm
                {:
-                  System.out.println("The expression statement is " + e_stm);
-
                   RESULT = (Exp)e_stm;
                :}
               | compound_stmt:c_stm
@@ -243,7 +241,6 @@ statem      ::=  expression_stmt:e_stm
 
 expression_stmt      ::=  expression:ex SEMI 
                      {:
-                        System.out.println("Found an expression! - " + ex);
                         RESULT = ex;
                      :}
                      | SEMI
@@ -258,6 +255,8 @@ expression            ::= var:vr EQ expression:ex
                         :}
                         | obool_expression:oex
                         {:
+                           
+                           System.out.println("The returned value is = " + oex);
                            RESULT = oex;
                         :}
                         ;
@@ -356,9 +355,13 @@ signed_factor   ::= UB signed_factor
 factor          ::= LPAREN  expression  RPAREN
                   | var
                      {:
-                        System.out.println("We are in x7 child! - var");
+                        //
                      :}
-                  | call           
+                  | call:cl
+                  {:
+                     System.out.println("HERE !");
+                     RESULT = cl;
+                  :}           
                   | NUM:n
                      {:
                         RESULT = new IntExp(nleft, nright, n);
@@ -366,15 +369,34 @@ factor          ::= LPAREN  expression  RPAREN
                   | TRUTH
                   ;
 
-call            ::= ID  LPAREN  args  RPAREN
+call            ::= ID:name  LPAREN  args:as  RPAREN 
+                  {:
+                     RESULT = new CallExp(nameleft, nameright, name, as); //function call with 'as' as arguments.
+                  :}
                   ;
 
-args            ::= arg_list
+args            ::= arg_list:al
+                  {:
+                     RESULT = al;
+                  :}
                   |
                   ;
 
-arg_list         ::=  arg_list  COMMA expression
-                  | expression
+arg_list         ::=  arg_list:al  COMMA expression:ex
+                  {:
+                     ExpList tmp = al;
+                     while (tmp.tail != null) {
+                        tmp = tmp.tail;
+                     }
+                     tmp.tail = new ExpList(ex, null);
+                     RESULT = al;
+
+                     //for (ExpList tmp = al; tmp.tail != null; tmp = tmp.tail);
+                  :}
+                  | expression:ex
+                  {:
+                     RESULT = new ExpList(ex, null);
+                  :}
                   ;
 
 
