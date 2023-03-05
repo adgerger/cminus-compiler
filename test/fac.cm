@@ -1,4 +1,4 @@
-/* A program to compute the factorial value of an integer */
+/* A program to compute the factorial value of an integer 
 
 void main(void) {
   int x; 
@@ -13,3 +13,13 @@ void main(void) {
 
   output(fac);
 }
+*/
+
+void main(void) {
+  int x; 
+  int fac;
+
+  x = 5;
+}
+ 
+

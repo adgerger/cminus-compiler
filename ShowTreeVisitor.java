@@ -8,6 +8,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
   }
 
+  /* Defined in the sample program */
   
   public void visit( ExpList expList, int level ) {
     while( expList != null ) {
@@ -16,6 +17,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     } 
   }
 
+/* Previous declaration
   public void visit( AssignExp exp, int level ) {
     indent( level );
     System.out.println( "AssignExp:" );
@@ -23,6 +25,18 @@ public class ShowTreeVisitor implements AbsynVisitor {
     exp.lhs.accept( this, level );
     exp.rhs.accept( this, level );
   }
+ */
+
+ public void visit( AssignExp exp, int level ) {
+  indent(level);
+  System.out.println("AssignExp: ");
+  level++;
+  visit(exp.lhs, level);
+  level++;
+  indent(level);
+  System.out.println(" = ");
+  visit(exp.rhs, level);
+ }
 
   public void visit( IfExp exp, int level ) {
     indent( level );
@@ -34,92 +48,15 @@ public class ShowTreeVisitor implements AbsynVisitor {
        exp.elsepart.accept( this, level );
   }
 
+
   public void visit( IntExp exp, int level ) {
     indent( level );
-    System.out.println( "IntExp: " + exp.value ); 
-  }
-
-  public void visit( DecList decList, int level) {
-    while(decList != null) {
-      if(decList.head != null){
-        decList.head.accept(this, level); 
-      }
-      decList = decList.tail;
-    }
-  }
-
-  public void visit( ArrayDec exp, int level ) {
-    indent( level );
+    System.out.println( "IntExp: "); 
     level++;
-
-    System.out.println("ArrDec: ");
-    visit(exp.type, level);
     indent( level );
-
-    System.out.println("Array Name: " + exp.name);
-    if(exp.size != null) {
-      visit(exp.size, level); //print the size of the array
-    }
+    System.out.println(exp.value);
   }
 
-
-  public void visit( VarDec exp, int level ) {
-
-    if(exp instanceof SingleDec) {
-      visit((SingleDec)exp, level);
-    } else if(exp instanceof ArrayDec) {
-      visit((ArrayDec)exp, level);
-    }
-  }
-
-  public void visit( NameTy exp, int level ) {
-    if(exp.type == NameTy.INT) { 
-      System.out.println("Type: INTEGER");
-    } else if (exp.type == NameTy.BOOL) {
-      System.out.println("Type: BOOL");
-    } else {
-      System.out.println("Type: VOID");
-    }
-  }
-
-  public void visit( SingleDec exp, int level ) {
-    indent(level);
-    System.out.println("SimpleDec: ");
-    indent(level);
-    visit(exp.type, level);
-    level++;
-    indent(level);
-    System.out.println("SimpleDec name: " + exp.name);
-  }
-
-  /* Make changes to stepping of the levels */
-  public void visit(FunctionDec exp, int level) {
-    indent( level );
-    System.out.println("FunctionDec: ");
-    level++;
-    visit(exp.type, level);
-    indent( level );
-    System.out.println("Function: " + exp.function);
-    visit(exp.param_list, level);
-    visit(exp.body, level); 
-  }
-
-
-  /* Write compound exp handling */
-  public void visit( CompoundExp exp, int level) {
-    System.out.println("CompoundExp: ");
-
-  }
-
-  /* Make changes */
-  public void visit( VarDecList exp, int level ) {
-    while(exp != null) {
-      if(exp.head != null) {
-        visit(exp.head, level);
-      }
-      exp = exp.tail;
-    }
-  }
 
   public void visit( OpExp exp, int level ) {
     indent( level );
@@ -158,10 +95,152 @@ public class ShowTreeVisitor implements AbsynVisitor {
     exp.right.accept( this, level );
   }
 
+  // made some changes
   public void visit( VarExp exp, int level ) {
-    indent( level );
-    System.out.println( "VarExp: " + exp.name );
+    indent(level);
+    level++;
+    System.out.println("VarExp: ");
+    visit(exp.vr, level);
   }
+
+
+
+
+  /* Our functions */
+
+
+  public void visit( ArrayDec exp, int level ) {
+    indent( level );
+    level++;
+
+    System.out.println("ArrDec: ");
+    
+    visit(exp.type, level);
+    
+    indent( level );
+
+    System.out.println("Array Name: " + exp.name);
+    if(exp.size != null) {
+      visit(exp.size, level); //print the size of the array
+    }
+  }
+
+
+  public void visit( VarDec exp, int level ) {
+
+    if(exp instanceof SingleDec) {
+      visit((SingleDec)exp, level);
+    } else if(exp instanceof ArrayDec) {
+      visit((ArrayDec)exp, level);
+    }
+  }
+
+
+  public void visit( NameTy exp, int level ) {
+    if(exp.type == NameTy.INT) { 
+      System.out.println("Type: INTEGER");
+    } else if (exp.type == NameTy.BOOL) {
+      System.out.println("Type: BOOL");
+    } else {
+      System.out.println("Type: VOID");
+    }
+  }
+
+
+  public void visit( SingleDec exp, int level ) {
+    indent(level);
+    System.out.println("SimpleDec: ");
+    indent(level);
+    visit(exp.type, level);
+    level++;
+    indent(level);
+    System.out.println("SimpleDec name: " + exp.name);
+  }
+
+  /* Function body */
+  public void visit( CompoundExp exp, int level) {
+    indent( level );
+    System.out.println("CompoundExp: ");
+    level++;
+    visit(exp.decs, level); // print variable declarations
+    visit(exp.exps, level); // print other expressions
+  }
+
+  /* Make changes to stepping of the levels */
+  public void visit(FunctionDec exp, int level) {
+    indent( level );
+    System.out.println("FunctionDec: ");
+    level++;
+    visit(exp.type, level);
+    indent( level );
+    System.out.println("Function: " + exp.function);
+    visit(exp.param_list, level);
+    visit(exp.body, level); 
+  }
+
+
+  public void visit( DecList decList, int level) {
+    while(decList != null) {
+      if(decList.head != null){
+        decList.head.accept(this, level); 
+      }
+      decList = decList.tail;
+    }
+  }
+
+  /* Make changes */
+  public void visit( VarDecList exp, int level ) {
+    while(exp != null) {
+      if(exp.head != null) {
+        visit(exp.head, level);
+      }
+      exp = exp.tail;
+    }
+  }
+
+  public void visit( SimpleVar exp, int level ) {
+    indent( level );
+    System.out.println( "SimpleVar: ");
+    level++;
+    indent( level );
+    System.out.println("SimpleVar name: " + exp.name);
+  }
+
+
+  // Variable
+  public void visit( Var exp, int level ) {
+    if(exp instanceof IndexVar) {
+      visit((IndexVar)exp, level);
+    } else if(exp instanceof SimpleVar) {
+      visit((SimpleVar)exp, level);
+    }
+  }
+
+  // Expression
+  public void visit( Exp exp, int level ) {
+    
+    if(exp instanceof VarExp) {
+      visit((VarExp)exp, level);
+    } else if (exp instanceof AssignExp) {
+      visit((AssignExp)exp, level);
+    }  else if(exp instanceof IntExp) {
+      visit((IntExp)exp, level);
+    }
+
+  }
+
+  public void visit( IndexVar exp, int level ) {
+    indent(level);
+    System.out.println("IndexVar: ");
+    level++;
+    indent(level);
+    System.out.println("IndexVarName: " + exp.name);
+    visit(exp.idx, level);
+  }
+
+
+
+
 
 
 }

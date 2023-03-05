@@ -1,0 +1,19 @@
+package absyn;
+
+public class SimpleVar extends Var{
+    public String name; 
+    public int row; 
+    public int col; 
+
+    public SimpleVar(int row, int col, String name) {
+        this.row = row; 
+        this.col = col; 
+        this.name = name;
+        System.out.println("Creating a simple var with name " + name );
+    }
+
+    public void accept( AbsynVisitor visitor, int level ) {
+		visitor.visit( this, level );
+	}
+}
+

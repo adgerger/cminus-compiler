@@ -105,8 +105,8 @@ start with program;
 
 program     ::= declaration_list:d
                {:
-               System.out.println("We are in program with dec list" + d); 
-               RESULT = d;:}
+               RESULT = d;
+               :}
               ;
 
 // add error
@@ -136,7 +136,7 @@ declaration ::= var_declaration:var_dec
 
 var_declaration   ::=  type_specifier:t ID:i SEMI
                         {: 
-                        RESULT = new SingleDec(tleft, tright, t, i); 
+                           RESULT = new SingleDec(tleft, tright, t, i); 
                         :}
                        | type_specifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
                        {:
@@ -147,7 +147,7 @@ var_declaration   ::=  type_specifier:t ID:i SEMI
 
 
 type_specifier ::= INT:i
-                     {: System.out.println("Found an integer!");
+                     {:
                      RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                   | VOID:v
                      {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
@@ -197,6 +197,8 @@ param       ::= type_specifier:type ID:name
 
 compound_stmt     ::=  LCURLY local_declarations:ldec statem_list:sl RCURLY
                      {:
+                        System.out.println("The statement list is " + sl);
+                        
                         RESULT = new CompoundExp(slleft, slright, ldec, (ExpList)sl);
                      :}
                     ;
@@ -210,12 +212,15 @@ local_declarations      ::=  local_declarations:ldec var_declaration:var_dec
 
 statem_list    ::= statem_list:st_list statem:st 
                   {:
+                     System.out.println("The expression statement being added to statement list is " + st);
                      RESULT = new ExpList(st, (ExpList)st_list); // list of expressions in the function
                   :} |
                  ;
 
 statem      ::=  expression_stmt:e_stm
                {:
+                  System.out.println("The expression statement is " + e_stm);
+
                   RESULT = (Exp)e_stm;
                :}
               | compound_stmt:c_stm
@@ -236,13 +241,33 @@ statem      ::=  expression_stmt:e_stm
               :}
               ;
 
-expression_stmt      ::=  expression SEMI | SEMI
+expression_stmt      ::=  expression:ex SEMI 
+                     {:
+                        System.out.println("Found an expression! - " + ex);
+                        RESULT = ex;
+                     :}
+                     | SEMI
                        ;
 
-selection_stmt ::= IF LPAREN expression:e RPAREN statem:s
-                     {: System.out.println("Test 1"); RESULT = new IfExp(eleft, eright, e, s, null); :}
-                  | IF LPAREN expression:e RPAREN statem:s1 ELSE statem:s2
-                     {: RESULT = new IfExp(eleft, eright, e, s1, s2); :}
+
+expression            ::= var:vr EQ expression:ex
+                        {:
+                           VarExp left_side = new VarExp(vrleft, vrright, (Var)vr); 
+
+                           RESULT = new AssignExp(vrleft, vrright, left_side, ex); // assign a variable
+                        :}
+                        | obool_expression:oex
+                        {:
+                           RESULT = oex;
+                        :}
+                        ;
+
+
+
+selection_stmt ::= IF LPAREN expression:ex RPAREN statem:s
+                     {: RESULT = new IfExp(exleft, exright, ex, s, null); :}
+                  | IF LPAREN expression:ex RPAREN statem:s1 ELSE statem:s2
+                     {: RESULT = new IfExp(exleft, exright, ex, s1, s2); :}
                      ;
 
 iteration_stmt       ::=  WHILE LPAREN expression RPAREN statem
@@ -253,17 +278,21 @@ return_stmt          ::= RETURN expression SEMI
                         ;
 
 
-expression            ::= var EQ expression
-                        | obool_expression
-                        ;
-
-
-var             ::= ID
-                  | ID SQLPAREN expression SQRPAREN
+var             ::= ID:name
+                  {:
+                     RESULT = new SimpleVar(nameleft, nameright, name); //for single variable
+                  :}
+                  | ID:name SQLPAREN expression:ex SQRPAREN
+                  {:
+                     RESULT = new IndexVar(nameleft, nameright, name, ex); //for array variable
+                  :}
                   ;
 
 obool_expression     ::= obool_expression LOR obool_expression
-                       | abool_expression
+                       | abool_expression:aex
+                       {:
+                           RESULT = aex;
+                       :}
                        ;
 
 relop           ::= LTE
@@ -275,26 +304,42 @@ relop           ::= LTE
                   ;
 
 abool_expression   ::= abool_expression LAND ubool_expression
-                     | ubool_expression
+                     | ubool_expression:uex
+                     {:
+                        RESULT = (Exp)uex;
+                     :}
                      ;
 
-ubool_expression     ::=  UB ubool_expression | simple_expression
+ubool_expression     ::=  UB ubool_expression 
+                        | simple_expression:spex
+                        {:
+                           RESULT = spex;
+                        :}
                        ;
 
 simple_expression     ::= additive_expression relop additive_expression
-                        | additive_expression
+                        | additive_expression:adex
+                        {:
+                           RESULT = (Exp)adex;
+                        :}                        
                         ;
 
 additive_expression   ::= additive_expression addop term
-                        | term
+                        | term:tr
+                        {:
+                           RESULT = tr;
+                        :}
                         ;
 
 addop           ::= PLUS
                   | MINUS
                   ;
 
-term            ::= term  mulop signed_factor
-                  | signed_factor
+term            ::= term mulop signed_factor
+                  | signed_factor:sf
+                  {:
+                     RESULT = sf;
+                  :}
                   ;
 
 mulop           ::= TIMES
@@ -302,13 +347,22 @@ mulop           ::= TIMES
                   ;
 
 signed_factor   ::= UB signed_factor
-                  | factor
+                  | factor:fc
+                     {:
+                        RESULT = fc;
+                     :}
                   ;
 
 factor          ::= LPAREN  expression  RPAREN
                   | var
-                  | call
-                  | NUM
+                     {:
+                        System.out.println("We are in x7 child! - var");
+                     :}
+                  | call           
+                  | NUM:n
+                     {:
+                        RESULT = new IntExp(nleft, nright, n);
+                     :}  
                   | TRUTH
                   ;
 

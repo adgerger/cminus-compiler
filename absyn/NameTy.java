@@ -14,7 +14,6 @@ public class NameTy extends Absyn {
     }
 
     public void accept( AbsynVisitor visitor, int level ) {
-        System.out.println("Accepting a type integer - in the accept of Type right now");
 		visitor.visit( this, level );
 	}
 }

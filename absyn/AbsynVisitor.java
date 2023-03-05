@@ -31,5 +31,11 @@ public interface AbsynVisitor {
 
   public void visit( CompoundExp exp, int level );
 
+  public void visit( SimpleVar exp, int level );
+
+  public void visit( Var exp, int level );
+
+  public void visit( IndexVar exp, int level );
+
 
 }
