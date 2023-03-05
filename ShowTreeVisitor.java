@@ -56,36 +56,73 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.print( "OpExp:" ); 
     switch( exp.op ) {
-      case OpExp.PLUS:
-        System.out.println( " + " );
-        break;
-      case OpExp.MINUS:
-        System.out.println( " - " );
-        break;
-      case OpExp.TIMES:
-        System.out.println( " * " );
-        break;
       case OpExp.OVER:
         System.out.println( " / " );
-        break;
-      case OpExp.EQ:
-        System.out.println( " = " );
         break;
       case OpExp.LT:
         System.out.println( " < " );
         break;
+      case OpExp.LTE:
+        System.out.println( " <= " );
+        break;
       case OpExp.GT:
         System.out.println( " > " );
         break;
-      case OpExp.UMINUS:
-        System.out.println( " - " );
+      case OpExp.GTE:
+        System.out.println( " >= " );
+        break;
+      case OpExp.ASSIGN:
+        System.out.println( " == " );
+        break;
+      case OpExp.NEQ:
+        System.out.println( " != " );
+        break;
+      case OpExp.UB:
+        System.out.println( " ~ " );
+        break;
+      case OpExp.LOR:
+        System.out.println( " || " );
+        break;
+      case OpExp.LAND:
+        System.out.println( " && " );
+        break;
+      case OpExp.EQ:
+        System.out.println( " = " );
+        break;
+      case OpExp.SEMI:
+        System.out.println( " ; " );
+        break;
+      case OpExp.LPAREN:
+        System.out.println( " ( " );
+        break;
+      case OpExp.RPAREN:
+        System.out.println( " ) " );
+        break;
+      case OpExp.COMMA:
+        System.out.println( " , " );
+        break;
+      case OpExp.SQLPAREN:
+        System.out.println( " [ " );
+        break;
+      case OpExp.SQRPAREN:
+        System.out.println( " ] " );
+        break;
+      case OpExp.LCURLY:
+        System.out.println( " { " );
+        break;
+      case OpExp.RCURLY:
+        System.out.println( " } " );
         break;
       default:
         System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
-    }
+        break;
+      }
+
     level++;
-    if (exp.left != null)
-       exp.left.accept( this, level );
+    if (exp.left != null){
+      exp.left.accept( this, level );
+
+    }
     exp.right.accept( this, level );
   }
 
@@ -122,8 +159,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit( VarDec exp, int level ) {
 
-    if(exp instanceof SingleDec) {
-      ((SingleDec)exp).accept(this, level);
+    if(exp instanceof SimpleDec) {
+      ((SimpleDec)exp).accept(this, level);
     } else if(exp instanceof ArrayDec) {
       ((ArrayDec)exp).accept(this, level);
     }
@@ -141,7 +178,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
 
-  public void visit( SingleDec exp, int level ) {
+  public void visit( SimpleDec exp, int level ) {
     indent(level);
     System.out.println("SimpleDec: ");
     indent(level);
@@ -178,12 +215,16 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 
   public void visit( DecList decList, int level) {
-    while(decList != null) {
+    
+    while (decList != null) {
+  
       if(decList.head != null){
         decList.head.accept(this, level); 
       }
+  
       decList = decList.tail;
     }
+  
   }
 
   /* Make changes */
