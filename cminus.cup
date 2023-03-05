@@ -214,11 +214,26 @@ statem_list    ::= statem_list:st_list statem:st
                   :} |
                  ;
 
-statem      ::=  expression_stmt 
-              | compound_stmt 
-              | selection_stmt
-              | iteration_stmt
-              | return_stmt
+statem      ::=  expression_stmt:e_stm
+               {:
+                  RESULT = (Exp)e_stm;
+               :}
+              | compound_stmt:c_stm
+              {:
+                  RESULT = (Exp)c_stm;
+              :}
+              | selection_stmt:s_stm
+              {:
+                  RESULT = (Exp)s_stm;
+              :}
+              | iteration_stmt:i_stm
+              {:
+                  RESULT = (Exp)i_stm;
+              :}
+              | return_stmt:r_stm
+              {:
+                  RESULT = (Exp)r_stm;
+              :}
               ;
 
 expression_stmt      ::=  expression SEMI | SEMI

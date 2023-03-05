@@ -64,9 +64,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 
   public void visit( VarDec exp, int level ) {
-    indent( level );
-    System.out.println( "VarDec: " + level ); 
-    visit((SingleDec)exp, level);
+
+    if(exp instanceof SingleDec) {
+      visit((SingleDec)exp, level);
+    } else if(exp instanceof ArrayDec) {
+      visit((ArrayDec)exp, level);
+    }
   }
 
   public void visit( Type exp, int level ) {
