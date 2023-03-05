@@ -99,6 +99,14 @@ non terminal VarDecList param_list, local_declarations;
 
 non terminal DecList declaration_list;
 
+/* --------------- Precedence Rules --------------- */
+
+precedence right EQ;
+precedence nonassoc LT, GT, LTE ,GTE, ASSIGN, NEQ;
+precedence left PLUS, MINUS;
+precedence left OVER, TIMES;
+precedence left ELSE;
+
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
