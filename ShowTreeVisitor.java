@@ -8,6 +8,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
   }
 
+  public void visit( BoolExp exp, int level) {
+
+  }
+
   
   public void visit( ExpList expList, int level ) {
     while( expList != null ) {
@@ -118,7 +122,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
-  public void visit( OpExp exp, int level ) {
+  
+ public void visit( OpExp exp, int level ) {
     indent( level );
     System.out.print( "OpExp:" ); 
     switch( exp.op ) {
@@ -134,17 +139,59 @@ public class ShowTreeVisitor implements AbsynVisitor {
       case OpExp.OVER:
         System.out.println( " / " );
         break;
-      case OpExp.EQ:
-        System.out.println( " = " );
-        break;
       case OpExp.LT:
         System.out.println( " < " );
+        break;
+      case OpExp.LTE:
+        System.out.println( " <= " );
         break;
       case OpExp.GT:
         System.out.println( " > " );
         break;
-      case OpExp.UMINUS:
-        System.out.println( " - " );
+      case OpExp.GTE:
+        System.out.println( " >= " );
+        break;
+      case OpExp.ASSIGN:
+        System.out.println( " == " );
+        break;
+      case OpExp.NEQ:
+        System.out.println( " != " );
+        break;
+      case OpExp.UB:
+        System.out.println( " ~ " );
+        break;
+      case OpExp.LOR:
+        System.out.println( " || " );
+        break;
+      case OpExp.LAND:
+        System.out.println( " && " );
+        break;
+      case OpExp.EQ:
+        System.out.println( " = " );
+        break;
+      case OpExp.SEMI:
+        System.out.println( " ; " );
+        break;
+      case OpExp.LPAREN:
+        System.out.println( " ( " );
+        break;
+      case OpExp.RPAREN:
+        System.out.println( " ) " );
+        break;
+      case OpExp.COMMA:
+        System.out.println( " , " );
+        break;
+      case OpExp.SQLPAREN:
+        System.out.println( " [ " );
+        break;
+      case OpExp.SQRPAREN:
+        System.out.println( " ] " );
+        break;
+      case OpExp.LCURLY:
+        System.out.println( " { " );
+        break;
+      case OpExp.RCURLY:
+        System.out.println( " } " );
         break;
       default:
         System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);

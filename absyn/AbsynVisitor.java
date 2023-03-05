@@ -31,5 +31,7 @@ public interface AbsynVisitor {
 
   public void visit( CompoundExp exp, int level );
 
+  public void visit( BoolExp exp, int level);
+
 
 }
