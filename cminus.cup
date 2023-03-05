@@ -136,7 +136,7 @@ declaration ::= var_declaration:var_dec
 
 var_declaration   ::=  type_specifier:t ID:i SEMI
                         {: 
-                        RESULT = new SingleDec(tleft, tright, t, i); 
+                        RESULT = new SimpleDec(tleft, tright, t, i); 
                         :}
                        | type_specifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
                        {:
@@ -187,7 +187,7 @@ param_list  ::= param_list:l  COMMA  param:p
 
 param       ::= type_specifier:type ID:name
                 {: 
-                RESULT = new SingleDec(typeleft, typeright, type, name); // single variable parameter
+                RESULT = new SimpleDec(typeleft, typeright, type, name); // single variable parameter
                 :}
               | type_specifier:type  ID:name SQLPAREN SQRPAREN 
                 {:

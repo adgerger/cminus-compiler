@@ -19,7 +19,7 @@ public interface AbsynVisitor {
 
   public void visit( VarDec exp, int level );
 
-  public void visit( SingleDec exp, int level );
+  public void visit( SimpleDec exp, int level );
 
   public void visit( NameTy exp, int level );
 

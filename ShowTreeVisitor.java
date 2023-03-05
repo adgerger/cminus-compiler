@@ -66,7 +66,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit( VarDec exp, int level ) {
     indent( level );
     System.out.println( "VarDec: " + level ); 
-    visit((SingleDec)exp, level);
+    visit((SimpleDec)exp, level);
   }
 
   public void visit( NameTy exp, int level ) {
@@ -79,7 +79,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
-  public void visit( SingleDec exp, int level ) {
+  public void visit( SimpleDec exp, int level ) {
     indent(level);
     System.out.println("SimpleDec: ");
     indent(level);
