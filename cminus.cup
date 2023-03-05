@@ -1,0 +1,315 @@
+/*
+  Created by: Fei Song
+  File Name: tiny.cup
+*/
+   
+   
+/* ----------------------Preliminary Declarations Section--------------------*/
+   
+import absyn.*;
+   
+/* Parser code to change the way the parser reports errors (include
+   line and column number of the error). */
+parser code {:
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+   
+        /* Create a StringBuffer called 'm' with the string 'Error' in it. */
+        StringBuffer m = new StringBuffer("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuffer error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuffer error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuffer error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuffer 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+    /* Assume true at the start, but set to false with parsing errors */
+    public static boolean valid = true;
+
+:};
+   
+   
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+   
+
+terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE, TRUTH;
+terminal PLUS, MINUS, TIMES, OVER, LT, LTE;
+terminal GT, GTE, ASSIGN, NEQ, UB, LOR, LAND, EQ, SEMI, LPAREN, RPAREN, SQLPAREN, SQRPAREN, LCURLY, RCURLY, COMMA;
+terminal String ID, NUM;
+terminal ERROR;
+   
+
+   
+non terminal Dec var_declaration, declaration, fun_declaration;
+non terminal Exp statem, expression;
+non terminal compound_stmt, expression_stmt, selection_stmt, iteration_stmt, return_stmt, ubool_expression, additive_expression;
+non terminal DecList program;
+non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call, args, arg_list ;
+
+non terminal Dec fun_prototype;
+
+non terminal params;
+
+non terminal Integer addop, relop, mulop;
+non terminal var, param, statem_list;
+
+non terminal Type type_specifier;
+
+non terminal VarDecList param_list, local_declarations;
+
+non terminal DecList declaration_list;
+
+/* ----------------------------Grammar Section-------------------- */
+   
+start with program;
+
+program     ::= declaration_list:d
+               {:
+               System.out.println("We are in program with dec list" + d); 
+               RESULT = d;:}
+              ;
+
+// add error
+declaration_list  ::= declaration_list:dl declaration:d
+                        {:
+                           DecList t = dl;
+                           while( t.tail != null ) {
+                              t = t.tail;
+                           }
+
+                           t.tail = new DecList(d, null);
+                           
+                           RESULT = dl;
+                        :}
+                     | declaration:d
+                        {:
+                        RESULT = new DecList(d, null); :}
+                     ;
+
+// add function prototype
+declaration ::= var_declaration:var_dec
+                  {: 
+                  RESULT = var_dec; :}
+               | fun_declaration:fun_dec
+                  {: RESULT = fun_dec; :}
+               ;
+
+var_declaration   ::=  type_specifier:t ID:i SEMI
+                        {: 
+                        RESULT = new SingleDec(tleft, tright, t, i); 
+                        :}
+                       | type_specifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
+                       {:
+                        IntExp array_size = new IntExp(ileft, iright, n); //get the size of the array 
+                        RESULT = new ArrayDec(tleft, tright, t, i, array_size);
+                       :}
+                     ;
+
+
+type_specifier ::= INT:i
+                     {: System.out.println("Found an integer!");
+                     RESULT = new Type(ileft, iright, Type.INT); :}
+                  | VOID:v
+                     {: RESULT = new Type(vleft, vright, Type.VOID); :}
+                  | BOOL:b
+                     {: RESULT = new Type(bleft, bright, Type.BOOL); :}
+                  ;                    
+
+
+fun_declaration      ::= type_specifier:type ID:name LPAREN params:p RPAREN compound_stmt:body
+                     {:
+                        RESULT = new FunctionDec(typeleft, typeright, type, name, (VarDecList)p, (CompoundExp)body);
+                     :}
+                       ;
+
+fun_prototype     ::=  type_specifier ID LPAREN params RPAREN SEMI
+                    ;
+
+params      ::=  param_list:p_list
+               {:
+                  RESULT = p_list;
+               :}
+               | VOID:v
+               ;
+
+param_list  ::= param_list:l  COMMA  param:p
+                {:
+                  VarDecList dcls = (VarDecList)l;
+                  while(dcls.tail != null) {
+                     dcls = dcls.tail;
+                  }
+                  dcls.tail = new VarDecList((VarDec)p, null);    // add to the list of parameters in the function definition
+                  RESULT = l;
+                :}
+              | param:p
+                {: RESULT = new VarDecList((VarDec)p, null); :}
+               ;
+
+param       ::= type_specifier:type ID:name
+                {: 
+                RESULT = new SingleDec(typeleft, typeright, type, name); // single variable parameter
+                :}
+              | type_specifier:type  ID:name SQLPAREN SQRPAREN 
+                {:
+                  RESULT = new ArrayDec(typeleft, typeright, type, name, null); // array parameter
+                :} 
+              ;
+
+compound_stmt     ::=  LCURLY local_declarations:ldec statem_list:sl RCURLY
+                     {:
+                        RESULT = new CompoundExp(slleft, slright, ldec, (ExpList)sl);
+                     :}
+                    ;
+ 
+local_declarations      ::=  local_declarations:ldec var_declaration:var_dec
+                        {:
+                           RESULT = new VarDecList((VarDec)var_dec, ldec);     // variable declarations in the local function scope
+                        :}
+                        | ; 
+                            
+
+statem_list    ::= statem_list:st_list statem:st 
+                  {:
+                     RESULT = new ExpList(st, (ExpList)st_list); // list of expressions in the function
+                  :} |
+                 ;
+
+statem      ::=  expression_stmt 
+              | compound_stmt 
+              | selection_stmt
+              | iteration_stmt
+              | return_stmt
+              ;
+
+expression_stmt      ::=  expression SEMI | SEMI
+                       ;
+
+selection_stmt ::= IF LPAREN expression:e RPAREN statem:s
+                     {: System.out.println("Test 1"); RESULT = new IfExp(eleft, eright, e, s, null); :}
+                  | IF LPAREN expression:e RPAREN statem:s1 ELSE statem:s2
+                     {: RESULT = new IfExp(eleft, eright, e, s1, s2); :}
+                     ;
+
+iteration_stmt       ::=  WHILE LPAREN expression RPAREN statem
+                       ;
+
+return_stmt          ::= RETURN expression SEMI
+                        | RETURN SEMI
+                        ;
+
+
+expression            ::= var EQ expression
+                        | obool_expression
+                        ;
+
+
+var             ::= ID
+                  | ID SQLPAREN expression SQRPAREN
+                  ;
+
+obool_expression     ::= obool_expression LOR obool_expression
+                       | abool_expression
+                       ;
+
+relop           ::= LTE
+                  | LT
+                  | GT
+                  | GTE
+                  | ASSIGN
+                  | NEQ
+                  ;
+
+abool_expression   ::= abool_expression LAND ubool_expression
+                     | ubool_expression
+                     ;
+
+ubool_expression     ::=  UB ubool_expression | simple_expression
+                       ;
+
+simple_expression     ::= additive_expression relop additive_expression
+                        | additive_expression
+                        ;
+
+additive_expression   ::= additive_expression addop term
+                        | term
+                        ;
+
+addop           ::= PLUS
+                  | MINUS
+                  ;
+
+term            ::= term  mulop signed_factor
+                  | signed_factor
+                  ;
+
+mulop           ::= TIMES
+                  | OVER
+                  ;
+
+signed_factor   ::= UB signed_factor
+                  | factor
+                  ;
+
+factor          ::= LPAREN  expression  RPAREN
+                  | var
+                  | call
+                  | NUM
+                  | TRUTH
+                  ;
+
+call            ::= ID  LPAREN  args  RPAREN
+                  ;
+
+args            ::= arg_list
+                  |
+                  ;
+
+arg_list         ::=  arg_list  COMMA expression
+                  | expression
+                  ;
+
+
+
+
+
+
