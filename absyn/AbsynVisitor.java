@@ -21,7 +21,7 @@ public interface AbsynVisitor {
 
   public void visit( SingleDec exp, int level );
 
-  public void visit( Type exp, int level );
+  public void visit( NameTy exp, int level );
 
   public void visit( ArrayDec exp, int level );
 
