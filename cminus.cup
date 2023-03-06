@@ -140,9 +140,16 @@ declaration_list  ::= declaration_list:dl declaration:d
 // add function prototype
 declaration ::= var_declaration:var_dec
                   {: 
-                  RESULT = var_dec; :}
+                     RESULT = var_dec; 
+                  :}
                | fun_declaration:fun_dec
-                  {: RESULT = fun_dec; :}
+                  {: 
+                     RESULT = fun_dec;
+                  :}
+               | fun_prototype:fun_prot
+                  {: 
+                     RESULT = fun_prot;
+                  :}
                ;
 
 var_declaration   ::=  type_specifier:t ID:i SEMI
@@ -173,7 +180,10 @@ fun_declaration      ::= type_specifier:type ID:name LPAREN params:p RPAREN comp
                      :}
                        ;
 
-fun_prototype     ::=  type_specifier ID LPAREN params RPAREN SEMI
+fun_prototype     ::=  type_specifier:type ID:name LPAREN params:p RPAREN SEMI
+                  {:
+                     RESULT = new FunctionDec(typeleft, typeright, type, name, (VarDecList)p, null);
+                  :}
                     ;
 
 params      ::=  param_list:p_list
@@ -301,8 +311,15 @@ iteration_stmt       ::=  WHILE LPAREN expression:ex RPAREN statem:st
                         :}
                        ;
 
-return_stmt          ::= RETURN expression SEMI
-                        | RETURN SEMI
+return_stmt          ::= RETURN:rt expression:ex SEMI
+                        {:
+                           RESULT = new ReturnExp(rtleft, rtright, ex);
+
+                        :}
+                        | RETURN:rt SEMI
+                        {:
+                           RESULT = new ReturnExp(rtleft, rtright, null);
+                        :}
                         ;
 
 
@@ -363,7 +380,10 @@ abool_expression   ::= abool_expression:aex LAND ubool_expression:uex
                      :}
                      ;
 
-ubool_expression     ::=  UB ubool_expression 
+ubool_expression     ::=  UB ubool_expression
+                        {:
+                           //
+                        :}
                         | simple_expression:spex
                         {:
                            RESULT = spex;
@@ -421,6 +441,9 @@ mulop           ::= TIMES
                   ;
 
 signed_factor   ::= UB signed_factor
+                     {:
+
+                     :}
                   | factor:fc
                      {:
                         RESULT = fc;

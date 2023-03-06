@@ -219,7 +219,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println("Function: " + exp.function);
     visit(exp.param_list, level);
-    visit(exp.body, level);    /******* COME BACK TO THIS BOYO */
+    if (exp.body != null) {
+      visit(exp.body, level);
+    }
   }
 
 
@@ -338,6 +340,26 @@ public class ShowTreeVisitor implements AbsynVisitor {
     
     visit(exp.body, level);
 
+  }
+
+  public void visit( NilExp exp, int level ) {
+    indent( level );
+    System.out.println("NilExp: ");
+  }
+
+
+  public void visit( ReturnExp exp, int level ) {
+
+    indent( level );
+    level++; 
+    System.out.println("ReturnExp: ");
+
+    if (exp.val != null) {
+
+      exp.val.accept(this, level);
+
+    }
+    
   }
 
 

@@ -41,7 +41,9 @@ public interface AbsynVisitor {
 
   public void visit( WhileExp exp, int level );
 
+  public void visit( NilExp exp, int level );
 
+  public void visit( ReturnExp exp, int level );
 
 
 }
