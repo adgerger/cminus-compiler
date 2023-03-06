@@ -86,14 +86,16 @@ non terminal compound_stmt, expression_stmt, selection_stmt, iteration_stmt, ret
 non terminal DecList program;
 non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call, ubool_expression;
 
-non terminal ExpList args, arg_list;
+non terminal ExpList args, arg_list, statem_list;
 
 non terminal Dec fun_prototype;
 
 non terminal params;
 
 non terminal Integer addop, relop, mulop;
-non terminal var, param, statem_list;
+non terminal var, param;
+
+
 
 non terminal NameTy type_specifier;
 
@@ -145,7 +147,6 @@ declaration ::= var_declaration:var_dec
 
 var_declaration   ::=  type_specifier:t ID:i SEMI
                         {: 
-                           System.out.println("Declaring " + i);
                            RESULT = new SimpleDec(tleft, tright, t, i); 
                         :}
                        | type_specifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
@@ -213,14 +214,30 @@ compound_stmt     ::=  LCURLY local_declarations:ldec statem_list:sl RCURLY
  
 local_declarations      ::=  local_declarations:ldec var_declaration:var_dec
                         {:
-                           RESULT = new VarDecList((VarDec)var_dec, ldec);     // variable declarations in the local function scope
+                           
+                           VarDecList decs = ldec;
+                           if (decs == null) {
+                              RESULT = new VarDecList((VarDec)var_dec, ldec);     // variable declarations in the local function scope
+                           } else {
+                              for (; decs.tail != null; decs = decs.tail);
+                              decs.tail = new VarDecList((VarDec)var_dec, null);
+                              RESULT = ldec;
+                           }
+
                         :}
                         | ; 
                             
 
 statem_list    ::= statem_list:st_list statem:st 
                   {:
-                     RESULT = new ExpList(st, (ExpList)st_list); // list of expressions in the function
+                     ExpList exps = st_list;
+                     if (exps == null ) {
+                        RESULT = new ExpList(st, (ExpList)st_list); // list of expressions in the function
+                     } else {
+                           for (; exps.tail != null; exps = exps.tail);
+                           exps.tail = new ExpList(st, null);
+                           RESULT = st_list;
+                     }
                   :} |
                  ;
 
@@ -262,7 +279,6 @@ expression            ::= var:vr EQ expression:ex
                         :}
                         | obool_expression:oex
                         {:
-                           
                            RESULT = oex;
                         :}
                         ;
@@ -396,7 +412,6 @@ term            ::= term:trm mulop:mlp signed_factor:sf
 
 mulop           ::= TIMES
                   {:
-                     System.out.println("Times is running");
                      RESULT = OpExp.TIMES;
                   :}
                   | OVER

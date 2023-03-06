@@ -22,11 +22,6 @@ class Main {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Absyn result = (Absyn)(p.parse().value);
       
-      System.out.println("The value of the parser is " + result);
-      
-      if (result == null) {
-      System.out.println("The value of the parser is null");
-      }
       if (SHOW_TREE && result != null) {
          System.out.println("The abstract syntax tree is:");
          ShowTreeVisitor visitor = new ShowTreeVisitor();
