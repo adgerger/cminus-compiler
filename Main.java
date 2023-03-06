@@ -1,14 +1,8 @@
 /*
-  Created by: Fei Song
-  File Name: Main.java
-  To Build: 
-  After the Scanner.java, tiny.flex, and tiny.cup have been processed, do:
-    javac Main.java
-  
-  To Run: 
-    java -classpath /usr/share/java/cup.jar:. Main gcd.tiny
-
-  where gcd.tiny is an test input file for the tiny language.
+  Todo:
+  - NilExp that use ~
+  - TRUTH value in the cminus.cup
+  - Error reporting
 */
    
 import java.io.*;
