@@ -9,7 +9,6 @@ public class SimpleVar extends Var{
         this.row = row; 
         this.col = col; 
         this.name = name;
-        System.out.println("Creating a simple var with name " + name );
     }
 
     public void accept( AbsynVisitor visitor, int level ) {

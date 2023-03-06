@@ -145,6 +145,7 @@ declaration ::= var_declaration:var_dec
 
 var_declaration   ::=  type_specifier:t ID:i SEMI
                         {: 
+                           System.out.println("Declaring " + i);
                            RESULT = new SimpleDec(tleft, tright, t, i); 
                         :}
                        | type_specifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
@@ -262,7 +263,6 @@ expression            ::= var:vr EQ expression:ex
                         | obool_expression:oex
                         {:
                            
-                           System.out.println("The returned value is = " + oex);
                            RESULT = oex;
                         :}
                         ;
@@ -279,7 +279,10 @@ selection_stmt ::= IF LPAREN expression:ex RPAREN statem:st
                      :}
                      ;
 
-iteration_stmt       ::=  WHILE LPAREN expression RPAREN statem
+iteration_stmt       ::=  WHILE LPAREN expression:ex RPAREN statem:st
+                        {:
+                           RESULT = new WhileExp(exleft, exright, ex, st);
+                        :}
                        ;
 
 return_stmt          ::= RETURN expression SEMI
@@ -329,7 +332,7 @@ relop           ::= LTE
                   :}                  
                   | NEQ
                   {:
-                     //
+                     RESULT = OpExp.NEQ;
                   :}                  
                   ;
 
@@ -393,6 +396,7 @@ term            ::= term:trm mulop:mlp signed_factor:sf
 
 mulop           ::= TIMES
                   {:
+                     System.out.println("Times is running");
                      RESULT = OpExp.TIMES;
                   :}
                   | OVER
@@ -445,14 +449,15 @@ args            ::= arg_list:al
 
 arg_list         ::=  arg_list:al  COMMA expression:ex
                   {:
-                     ExpList tmp = al;
-                     while (tmp.tail != null) {
-                        tmp = tmp.tail;
-                     }
+                     //ExpList tmp = al;
+                     //while (tmp.tail != null) {
+                     //   tmp = tmp.tail;
+                     //}
+                     ExpList tmp;
+                     for (tmp = al; tmp.tail != null; tmp = tmp.tail);
                      tmp.tail = new ExpList(ex, null);
                      RESULT = al;
 
-                     //for (ExpList tmp = al; tmp.tail != null; tmp = tmp.tail);
                   :}
                   | expression:ex
                   {:

@@ -39,6 +39,9 @@ public interface AbsynVisitor {
 
   public void visit( CallExp exp, int level );
 
+  public void visit( WhileExp exp, int level );
+
+
 
 
 }

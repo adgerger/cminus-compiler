@@ -56,8 +56,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.print( "OpExp:" ); 
     switch( exp.op ) {
+      case OpExp.TIMES:
+        System.out.println( " * " );
+        break;
+      case OpExp.PLUS:
+        System.out.println( " + " );
+        break;
       case OpExp.OVER:
         System.out.println( " / " );
+        break;
+      case OpExp.MINUS:
+        System.out.println( " - " );
         break;
       case OpExp.LT:
         System.out.println( " < " );
@@ -201,7 +210,20 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   }
 
-  /* Make changes to stepping of the levels */
+
+  public void visit( FunctionDec exp, int level ) {
+    indent( level );
+    System.out.println("FunctionDec: ");
+    level++;
+    visit(exp.type, level);
+    indent( level );
+    System.out.println("Function: " + exp.function);
+    visit(exp.param_list, level);
+    visit(exp.body, level);    /******* COME BACK TO THIS BOYO */
+  }
+
+
+  /* Make changes to stepping of the levels 
   public void visit(FunctionDec exp, int level) {
     indent( level );
     System.out.println("FunctionDec: ");
@@ -214,7 +236,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
     exp.body.accept(this, level);
   }
-
+*/
 
   public void visit( DecList decList, int level) {
     
@@ -260,18 +282,25 @@ public class ShowTreeVisitor implements AbsynVisitor {
   // Expression
   public void visit( Exp exp, int level ) {
     
-    if(exp instanceof VarExp) {
-      ((VarExp)exp).accept(this, level);
-
-    } else if (exp instanceof AssignExp) {
-      ((AssignExp)exp).accept(this, level);
-
-    }  else if(exp instanceof IntExp) {
-      ((IntExp)exp).accept(this, level);
-
-    }  else if(exp instanceof CallExp) {
-      ((CallExp)exp).accept(this, level);
-
+  if(exp instanceof CompoundExp) {
+      visit((CompoundExp)exp, level);
+    } else if(exp instanceof WhileExp) {
+      visit((WhileExp)exp, level);
+    } else if(exp instanceof IfExp) {
+      visit((IfExp)exp, level);
+    } else if(exp instanceof AssignExp) {
+      visit((AssignExp)exp, level);
+    } else if(exp instanceof OpExp) {
+      visit((OpExp)exp, level);
+    } else if(exp instanceof CallExp) {
+      visit((CallExp)exp, level);
+    } else if(exp instanceof IntExp) {
+      visit((IntExp)exp, level);
+    } else if(exp instanceof VarExp) {
+      visit((VarExp)exp, level);
+    } else {
+      indent(level);
+      System.out.println("Error on expression in the row " + exp.row + " and column " + exp.col);
     }
 
   }
@@ -295,12 +324,21 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent( level );
     System.out.println(exp.name);
     
-    
     visit(exp.args, level); /* Print arguments */
 
   }
+  
+  
+  public void visit( WhileExp exp, int level ) {
+    indent( level );
+    System.out.println("WhileExp: ");
+    level++;
+    
+    visit(exp.condition, level);
+    
+    visit(exp.body, level);
 
-
+  }
 
 
 }
