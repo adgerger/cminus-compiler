@@ -81,10 +81,10 @@ terminal ERROR;
 
    
 non terminal Dec var_declaration, declaration, fun_declaration;
-non terminal Exp statem, expression;
-non terminal compound_stmt, expression_stmt, selection_stmt, iteration_stmt, return_stmt, ubool_expression, additive_expression;
+non terminal Exp statem, expression, additive_expression;
+non terminal compound_stmt, expression_stmt, selection_stmt, iteration_stmt, return_stmt;
 non terminal DecList program;
-non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call;
+non terminal Exp obool_expression, abool_expression, simple_expression, term, signed_factor, factor, call, ubool_expression;
 
 non terminal ExpList args, arg_list;
 
@@ -205,8 +205,7 @@ param       ::= type_specifier:type ID:name
               ;
 
 compound_stmt     ::=  LCURLY local_declarations:ldec statem_list:sl RCURLY
-                     {:
-                        
+                     {:   
                         RESULT = new CompoundExp(slleft, slright, ldec, (ExpList)sl);
                      :}
                     ;
@@ -270,10 +269,14 @@ expression            ::= var:vr EQ expression:ex
 
 
 
-selection_stmt ::= IF LPAREN expression:ex RPAREN statem:s
-                     {: RESULT = new IfExp(exleft, exright, ex, s, null); :}
-                  | IF LPAREN expression:ex RPAREN statem:s1 ELSE statem:s2
-                     {: RESULT = new IfExp(exleft, exright, ex, s1, s2); :}
+selection_stmt ::= IF LPAREN expression:ex RPAREN statem:st
+                     {: 
+                     RESULT = new IfExp(exleft, exright, ex, st, null); 
+                     :}
+                  | IF LPAREN expression:ex RPAREN statem:st1 ELSE statem:st2
+                     {: 
+                     RESULT = new IfExp(exleft, exright, ex, st1, st2); 
+                     :}
                      ;
 
 iteration_stmt       ::=  WHILE LPAREN expression RPAREN statem
@@ -294,7 +297,10 @@ var             ::= ID:name
                   :}
                   ;
 
-obool_expression     ::= obool_expression LOR obool_expression
+obool_expression     ::= obool_expression:oex1 LOR obool_expression:oex2 
+                       {:
+                           RESULT = new OpExp(oex1left, oex1right, oex1, OpExp.LOR, oex2);
+                       :}
                        | abool_expression:aex
                        {:
                            RESULT = aex;
@@ -302,14 +308,36 @@ obool_expression     ::= obool_expression LOR obool_expression
                        ;
 
 relop           ::= LTE
+                  {:
+                     RESULT = OpExp.LTE;
+                  :}
                   | LT
+                  {:
+                     RESULT = OpExp.LT;
+                  :}
                   | GT
+                  {:
+                     RESULT = OpExp.GT;
+                  :}                  
                   | GTE
+                  {:
+                     RESULT = OpExp.GTE;
+                  :}                  
                   | ASSIGN
+                  {:
+                     RESULT = OpExp.ASSIGN;
+                  :}                  
                   | NEQ
+                  {:
+                     //
+                  :}                  
                   ;
 
-abool_expression   ::= abool_expression LAND ubool_expression
+abool_expression   ::= abool_expression:aex LAND ubool_expression:uex
+                     {:
+                        RESULT = new OpExp(aexleft, aexright, aex, OpExp.LAND, uex);
+                     :}
+                     
                      | ubool_expression:uex
                      {:
                         RESULT = (Exp)uex;
@@ -323,14 +351,20 @@ ubool_expression     ::=  UB ubool_expression
                         :}
                        ;
 
-simple_expression     ::= additive_expression relop additive_expression
+simple_expression     ::= additive_expression:adex1 relop:rl additive_expression:adex2
+                        {:
+                           RESULT = new OpExp(adex1left, adex1right, adex1, rl, adex2);
+                        :}
                         | additive_expression:adex
                         {:
                            RESULT = (Exp)adex;
                         :}                        
                         ;
 
-additive_expression   ::= additive_expression addop term
+additive_expression   ::= additive_expression:adex addop:adp term:trm
+                        {:
+                           RESULT = new OpExp(adexleft, adexright, adex, adp, trm);
+                        :}
                         | term:tr
                         {:
                            RESULT = tr;
@@ -338,10 +372,19 @@ additive_expression   ::= additive_expression addop term
                         ;
 
 addop           ::= PLUS
+                  {:
+                     RESULT = OpExp.PLUS;
+                  :}
                   | MINUS
+                  {:
+                     RESULT = OpExp.MINUS;
+                  :}
                   ;
 
-term            ::= term mulop signed_factor
+term            ::= term:trm mulop:mlp signed_factor:sf
+                  {:
+                     RESULT = new OpExp(trmleft, trmright, trm, mlp, sf);
+                  :}
                   | signed_factor:sf
                   {:
                      RESULT = sf;
@@ -349,7 +392,13 @@ term            ::= term mulop signed_factor
                   ;
 
 mulop           ::= TIMES
+                  {:
+                     RESULT = OpExp.TIMES;
+                  :}
                   | OVER
+                  {:
+                     RESULT = OpExp.OVER;
+                  :}
                   ;
 
 signed_factor   ::= UB signed_factor
@@ -359,9 +408,9 @@ signed_factor   ::= UB signed_factor
                      :}
                   ;
 
-factor          ::= LPAREN  expression  RPAREN
+factor          ::= LPAREN  expression:ex  RPAREN
                      {:
-                        //
+                        RESULT = ex;
                      :}
                   | var:vr
                      {:
@@ -369,7 +418,6 @@ factor          ::= LPAREN  expression  RPAREN
                      :}
                   | call:cl
                   {:
-                     System.out.println("HERE !");
                      RESULT = cl;
                   :}           
                   | NUM:n

@@ -17,14 +17,15 @@ void main(void) {
 
 
 void main(void) {
-  int x; 
-  int fac;
+  int x;
+  int y;
 
-  x = 5;
+  x=5;
+  y=3;
 
-  fac = input(4);
-
-  x = fac;
+  if (x < 5 && (y > 4)) {
+    x=4;
+  }
 
 }
  
