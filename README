@@ -1,18 +1,29 @@
-A parser implementation for the Tiny programming language using JFlex and CUP..
+
+Zeynep Erdogru and Dogu Gerger
+zerdogru@uoguelph.ca and dgerger@uoguelph.ca
+
+-------
+-Message from Zeynep
+Code to be updated** 
+I (Zeynep Erdogru) am an SAS student and got an extension for 3 days from Professor Song. My team mate Dogu Gerger is submitting this code to show his progress. 
+--------
+
+In this package, we provide a SampleParser that builds
+a scanner and a parser together with JFlex and CUP. 
+
+Also included are five C- programs from the C-Specification for
+convenience during development and testing.
+
+A parser implementation for the C- programming language using JFlex and CUP..
 
 Checkpoint 1 - Code
-
-  Please note that you need to modify the paths for CLASSPATH, JFLEX, and CUP in 
-the Makefile so that the related commands can be found on your particular 
-machine.  For example, the given settings in Makefile are for the Linux 
-server and the commented settings are for my MacBook.
 
   To build the parser, type "make" in the current directory, which will 
 generate an executable program called "Main".
 
-  To test source code like "fac.tiny", type 
+  To test source code like "booltest.cm", type 
 
-    "java -cp /usr/share/java/cup.jar:. Main fac.tiny" 
+    "java -cp /usr/share/java/cup.jar:. Main test/booltest.cm" 
 
 and the syntax tree will be displayed on the screen.
 
@@ -22,13 +33,6 @@ and the syntax tree will be displayed on the screen.
 the directory "absyn" and the methods for showing a syntax tree is implemented
 by the visitor pattern in "ShowTreeVisitor.java".  Since some java files are 
 generated automatically, they may contain variables that are not used, which 
-are safe to ignore in the compilation process.
+can be ignored in the compilation process.
 
-  Also included in this package are four versions of the tiny.cup file: tiny.cup.bare
-defines all token types but has basically no grammar rules, which can be used to test 
-your scanner implementation; tiny.cup.rules contains all the grammar rules but doesn't
-generate any output, which can be used to test if the given grammar can be run properly;
-tiny.cup.layered uses the same grammar and shows the syntax trees through the visitor
-pattern; and tiny.cup.ordered simplifies the grammar with precedence directives in CUP.
-You are encouraged to follow these steps to build your parser incrementaly for Checkpoint
-One implementation.
+
