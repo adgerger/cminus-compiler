@@ -1,7 +1,6 @@
 /*
-  Created By: Fei Song
-  File Name: tiny.flex
-  To Build: jflex tiny.flex
+  Created by: Dogu Gerger and Zeynep Erdogru
+  File Name: cminus.flex
 
   and then after the parser is created
     javac Lexer.java

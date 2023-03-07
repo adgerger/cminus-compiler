@@ -1,3 +1,11 @@
+/*
+  Todo for Zeynep 
+  - NilExp that use ~
+  - TRUTH value in the cminus.cup
+  - Error reporting
+  Scanner.java class created by Fei Song 
+*/
+
 import java.io.InputStreamReader;
 import java_cup.runtime.Symbol;
 

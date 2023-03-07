@@ -1,9 +1,12 @@
 /*
-  Todo:
+  Todo for Zeynep 
   - NilExp that use ~
   - TRUTH value in the cminus.cup
   - Error reporting
+  - Edit the makefile and make it prettier
+  Main.java class created by Fei Song 
 */
+
    
 import java.io.*;
 import absyn.*;

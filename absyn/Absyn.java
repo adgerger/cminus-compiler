@@ -1,3 +1,4 @@
+/* Abstract class Absyn*/
 package absyn;
 
 abstract public class Absyn {
