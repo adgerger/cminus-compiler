@@ -2,7 +2,7 @@
 /*
   Created by: Dogu Gerger and Zeynep Erdogru
   File Name: ShowTreeVisitor.java
-  
+
 */
 
 import absyn.*;
@@ -15,8 +15,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
   }
 
-  /* Defined in the sample program */
-  
+
+  /* Expression List */
   public void visit( ExpList expList, int level ) {
     while( expList != null ) {
       expList.head.accept( this, level );
@@ -24,6 +24,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     } 
   }
 
+  /* Assign Expression */
   public void visit( AssignExp exp, int level ) {
     indent( level );
     System.out.println( "AssignExp:" );
@@ -58,7 +59,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println(exp.value);
   }
 
-
+  /* Operation Expression */
   public void visit( OpExp exp, int level ) {
     indent( level );
     System.out.print( "OpExp:" ); 
@@ -152,10 +153,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 
 
-
-  /* Our functions */
-
-
   public void visit( ArrayDec exp, int level ) {
     indent( level );
     level++;
@@ -231,21 +228,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
-
-  /* Make changes to stepping of the levels 
-  public void visit(FunctionDec exp, int level) {
-    indent( level );
-    System.out.println("FunctionDec: ");
-    level++;
-
-    exp.type.accept(this, level);
-    indent( level );
-
-    visit(exp.param_list, level);
-
-    exp.body.accept(this, level);
-  }
-*/
 
   public void visit( DecList decList, int level) {
     
@@ -323,12 +305,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     exp.idx.accept(this, level);
   }
 
-
+  /* Call Expression */
   public void visit( CallExp exp, int level ) {
     indent(level);
     System.out.println("CallExp: ");
-    
-    /* Print function name */
     level++;
     indent( level );
     System.out.println(exp.name);
