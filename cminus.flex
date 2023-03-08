@@ -89,6 +89,7 @@ letter = [a-zA-Z]
 identifier = [a-zA-Z][a-zA-Z]*
 
 comment = \/\*[^*]*[*]+([^/*][^*]*[*]+)*\/
+truth = true|false 
 %%
 /* ------------------------Lexical Rules Section---------------------- */
    
@@ -107,8 +108,7 @@ comment = \/\*[^*]*[*]+([^/*][^*]*[*]+)*\/
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-"true"             { return symbol(sym.TRUE); }
-"false"            { return symbol(sym.FALSE); }
+
 
 //SPECIAL SYMBOLS
 "+"                { return symbol(sym.PLUS); }
@@ -137,8 +137,10 @@ comment = \/\*[^*]*[*]+([^/*][^*]*[*]+)*\/
 "{"                { return symbol(sym.LCURLY); }
 "}"                { return symbol(sym.RCURLY); }
 
-{number}           { return symbol(sym.NUM, yytext()); }
+// truth must be above id otherwise id will catch truth and not read it and throw a warning -zeynep
+{truth}            { return symbol(sym.TRUTH, yytext()); }
 {identifier}       { return symbol(sym.ID, yytext()); }
+{number}           { return symbol(sym.NUM, yytext()); }
 
 
 //WHITESPACE AND COMMENTS

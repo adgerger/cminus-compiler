@@ -11,6 +11,7 @@ import absyn.*;
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
 parser code {:
+
     
     /* Change the method report_error so it will display the line and
        column of where the error occurred in the input as well as the
@@ -20,6 +21,7 @@ parser code {:
    
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
+
    
         /* Check if the information passed to the method is the same
            type as the type java_cup.runtime.Symbol. */
@@ -72,10 +74,10 @@ parser code {:
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
 
-terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE, TRUTH;
+terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE;
 terminal PLUS, MINUS, TIMES, OVER, LT, LTE;
 terminal GT, GTE, ASSIGN, NEQ, UB, LOR, LAND, EQ, SEMI, LPAREN, RPAREN, SQLPAREN, SQRPAREN, LCURLY, RCURLY, COMMA;
-terminal String ID, NUM;
+terminal String ID, NUM, TRUTH;
 terminal ERROR;
    
 
@@ -103,12 +105,12 @@ non terminal VarDecList param_list, local_declarations;
 
 non terminal DecList declaration_list;
 
-
 precedence right EQ;
 precedence nonassoc LT, GT, LTE ,GTE, ASSIGN, NEQ;
 precedence left PLUS, MINUS;
 precedence left OVER, TIMES;
 precedence left ELSE;
+
 
 
 /* ----------------------------Grammar Section-------------------- */
@@ -117,9 +119,13 @@ start with program;
 
 program     ::= declaration_list:d
                {:
-               RESULT = d;
+                 RESULT = d;
                :}
-              ;
+               | ERROR
+               {:
+                 RESULT = null;
+               :}
+            ;
 
 // add error
 declaration_list  ::= declaration_list:dl declaration:d
@@ -137,7 +143,7 @@ declaration_list  ::= declaration_list:dl declaration:d
                         {: RESULT = new DecList(d, null); :}
                      ;
 
-// add function prototype
+
 declaration ::= var_declaration:var_dec
                   {: 
                      RESULT = var_dec; 
@@ -161,6 +167,16 @@ var_declaration   ::=  type_specifier:t ID:i SEMI
                         IntExp array_size = new IntExp(ileft, iright, n); //get the size of the array 
                         RESULT = new ArrayDec(tleft, tright, t, i, array_size);
                        :}
+                       | INT error :e
+                       {:
+                         parser.report_error("Error invalid variable declaration", null);
+                         RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.INT), null);
+                       :}
+                       | BOOL error :e
+                       {:
+                         parser.report_error("Error invalid variable declaration", null);
+                         RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.BOOL), null);
+                       :} 
                      ;
 
 
@@ -178,7 +194,17 @@ fun_declaration      ::= type_specifier:type ID:name LPAREN params:p RPAREN comp
                      {:
                         RESULT = new FunctionDec(typeleft, typeright, type, name, (VarDecList)p, (CompoundExp)body);
                      :}
-                       ;
+                     | type_specifier:type ID:name error:e param_list:pl RPAREN compound_stmt:body
+                     {:
+                        parser.report_error("Invalid function declaration", null);
+                        RESULT = new FunctionDec(typeleft, typeright, type, name, (VarDecList)pl,(CompoundExp)body);
+                     :}
+                     | type_specifier:type ID:name LPAREN param_list:pl error:e compound_stmt:body
+                     {:
+                        parser.report_error("Invalid function declaration", null);
+                        RESULT = new FunctionDec(typeleft, typeright, type, name, (VarDecList)pl,(CompoundExp)body);
+                     :}
+                     ;
 
 fun_prototype     ::=  type_specifier:type ID:name LPAREN params:p RPAREN SEMI
                   {:
