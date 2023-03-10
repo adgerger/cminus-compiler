@@ -141,6 +141,11 @@ declaration_list  ::= declaration_list:dl declaration:d
                         :}
                      | declaration:d
                         {: RESULT = new DecList(d, null); :}
+                     | error declaration: ed
+                        {:
+                           parser.report_error("Invalid", null);
+                           RESULT = new DecList(ed, null);
+                        :}
                      ;
 
 
@@ -167,12 +172,12 @@ var_declaration   ::=  type_specifier:t ID:i SEMI
                         IntExp array_size = new IntExp(ileft, iright, n); //get the size of the array 
                         RESULT = new ArrayDec(tleft, tright, t, i, array_size);
                        :}
-                       | INT error :e
+                       | INT error:e
                        {:
                          parser.report_error("Error invalid variable declaration", null);
                          RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.INT), null);
                        :}
-                       | BOOL error :e
+                       | BOOL error:e
                        {:
                          parser.report_error("Error invalid variable declaration", null);
                          RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.BOOL), null);
@@ -297,6 +302,19 @@ statem      ::=  expression_stmt:e_stm
               {:
                   RESULT = (Exp)r_stm;
               :}
+              | RETURN error:e
+               {:
+                  parser.report_error("Invalid return statment", null);
+                  RESULT = new ReturnExp(eleft, eright, null);
+               :}
+               
+              | error:e SEMI
+               {:
+                  parser.report_error("Error invalid statement", null);
+                  RESULT = new NilExp(eleft, eright);
+
+               :}
+
               ;
 
 expression_stmt      ::=  expression:ex SEMI 
@@ -325,7 +343,7 @@ selection_stmt ::= IF LPAREN expression:ex RPAREN statem:st
                      {: 
                      RESULT = new IfExp(exleft, exright, ex, st, null); 
                      :}
-                  | IF LPAREN expression:ex RPAREN statem:st1 ELSE statem:st2
+                     | IF LPAREN expression:ex RPAREN statem:st1 ELSE statem:st2
                      {: 
                      RESULT = new IfExp(exleft, exright, ex, st1, st2); 
                      :}
@@ -340,7 +358,6 @@ iteration_stmt       ::=  WHILE LPAREN expression:ex RPAREN statem:st
 return_stmt          ::= RETURN:rt expression:ex SEMI
                         {:
                            RESULT = new ReturnExp(rtleft, rtright, ex);
-
                         :}
                         | RETURN:rt SEMI
                         {:
