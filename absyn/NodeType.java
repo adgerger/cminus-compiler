@@ -10,8 +10,4 @@ public class NodeType {
     this.def = def;
     this.level = level;
   }
-
-  public void accept(AbsynVisitor visitor, int level) {
-        visitor.visit(this, level);
-    }
 }
