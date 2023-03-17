@@ -1,10 +1,6 @@
 /*
-  Todo for Zeynep 
-  - NilExp that use ~
-  - DONE- TRUTH value in the cminus.cup 
-  - Error reporting
-  - Edit the makefile and make it prettier
-  Main.java class created by Fei Song 
+  Zeynep Erdogru & Dogu gerger 
+  CIS*4650 Compilers Checkpoint 2
 */
 
    
@@ -35,7 +31,8 @@ class Main {
 
       if (SHOW_TABLE && result != null) {
         System.out.println("The symbol table is:");
-        SymbolTable visitor = new SymbolTable();
+        SemanticAnalyzer visitor = new SemanticAnalyzer((DecList)result);
+
       }
 
     } catch (Exception e) {

@@ -1,4 +1,4 @@
-java -cp /usr/share/java/cup.jar:. Main test/booltest.cm -a -s
+java -cp /usr/share/java/cup.jar:. Main test/booltest.cm  -s
 
 
 

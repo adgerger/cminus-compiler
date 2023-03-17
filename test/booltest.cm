@@ -1,6 +1,6 @@
 /* A factorial program that uses a Boolean variable */
 
-int a;
+void a;
 
 void main(void) {
   int x; 
