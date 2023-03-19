@@ -3,7 +3,6 @@ import absyn.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +26,7 @@ public class SymbolTable {
         table = new HashMap<String, ArrayList<NodeType>>();
         
         tableToString = new StringBuilder();
+
         tableToString.append("The symbol table:\n");
         tableToString.append("Entering the global scope:\n");
 
@@ -83,12 +83,6 @@ public class SymbolTable {
 
 
 
-    public void newScope(String id) {
-        //symbolTable.add(new HashMap<String, Symbol>());
-        table.put(id, new ArrayList<NodeType>());
-    }
-
-
     // Get the type
     private String getNameType(int type) {
         if(type == NameTy.VOID) {
@@ -98,11 +92,6 @@ public class SymbolTable {
         } else {
             return "INT";
         }
-    }
-    //private ArrayList<HashMap<String, Symbol>> symbolTable;
-    // Add anode to the hashmap
-    public void addToTable(String id) {
-        table.put(id, new ArrayList<NodeType>());
     }
 
     /*
@@ -170,11 +159,5 @@ public class SymbolTable {
         return null;
       }
 
-
-    private int getScope(String id) {
-
-        NodeType nodee = getNode(id);
-        return nodee.getLevel();
-    }
     
 }
