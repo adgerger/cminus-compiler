@@ -30,8 +30,10 @@ class Main {
       }
 
       if (SHOW_TABLE && result != null) {
-        System.out.println("The symbol table is:");
         SemanticAnalyzer visitor = new SemanticAnalyzer((DecList)result);
+
+        
+        System.out.println(visitor.getSymbolTableString());
 
       }
 

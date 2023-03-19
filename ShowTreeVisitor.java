@@ -152,7 +152,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
 
-
   public void visit( ArrayDec exp, int level ) {
     indent( level );
     level++;
@@ -242,6 +241,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   
   }
 
+
   public void visit( VarDecList exp, int level ) {
     while(exp != null) {
       if(exp.head != null) {
@@ -270,6 +270,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
+
   // Expression
   public void visit( Exp exp, int level ) {
     
@@ -295,6 +296,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
 
   }
+
 
   public void visit( IndexVar exp, int level ) {
     indent(level);
@@ -329,6 +331,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   }
 
+  
   public void visit( NilExp exp, int level ) {
     indent( level );
     System.out.println("NilExp: ");

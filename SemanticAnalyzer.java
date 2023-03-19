@@ -4,20 +4,45 @@ import absyn.*;
 
 /**
  * SemanticAnalyzer
+ To DO:
+-Give zeynep to-do
+-Mail professor song for extension tell him u will get a doctors note
+-push code to git
  */
 public class SemanticAnalyzer {
     
-    public SemanticAnalyzer(DecList parser) {
-        System.out.println("Created a SemanticAnalyzer object. ");
+    public SymbolTable symtable;
 
+    public int global_level = 0;
+
+
+    public SemanticAnalyzer(DecList parser) {
+        
+        global_level = 0;
+
+        symtable = new SymbolTable();
+        
         visit(parser);
+    }
+
+    public void printScope(int scope) {
+        symtable.printScope(scope, global_level);
+        
+    }
+
+    public String getSymbolTableString() {
+
+        this.printScope(0);
+        symtable.tableToString.append("Leaving the global scope.");
+        
+        return symtable.tableToString.toString();
     }
     
     
     public void visit( DecList decList) {
         
         // Create a new scope
-        // do level++
+        // do level++ ?
 
         // Create two NodeType's with a function declaration one for input() one for output()
         
@@ -30,7 +55,7 @@ public class SemanticAnalyzer {
         }
 
         // Maybe: Check if the program contains a main function 
-    
+        
     }
 
 
@@ -56,38 +81,37 @@ public class SemanticAnalyzer {
 
 
     public void visit( SimpleDec exp) {
-        System.out.println("SimpleDec name: " + exp.name);
 
-        // Get the type number of the variable exp.type.type
-        // Get the name of the variable 
-
+        /* Check if a variable is declared as VOID. */
         if (exp.type.type == NameTy.VOID) {
             System.out.println("Error: variable" + exp.name +" defined as VOID on line "+ ((exp.row) + 1));
         }
+        
+        /* Check if the variable is redeclared. */
+        if (symtable.isInSameScope(exp.name, global_level) == true) {
+			System.err.println("Error: Redeclaration of variable " + exp.name + " on line " + (exp.row + 1));
+        }
 
-        // check if the variable is redeclared by calling a function that checks if this variable name is defined in the current scope.
-
-        // create a node type
-        // probably: NodeType nd = new NodeType(exp.name, (Dec)exp, 0);
-        // add it to the symbol table.
+        /* Add a global variable declaration */
+        NodeType nd = new NodeType(exp.name, (Dec)exp, global_level);
+        symtable.addNode(nd);
     }
 
-
     public void visit( ArrayDec exp) {
-        System.out.println("ArrayDec name: " + exp.name);
 
-        // Get the type number of the variable exp.type.type
-        // Get the name of the variable 
-
+        /* Check if the variable is declared as VOID. */
         if (exp.type.type == NameTy.VOID) {
             System.out.println("Error: variable" + exp.name +" defined as VOID on line "+ ((exp.row) + 1));
         }
+        
+        /* Check if the variable is redeclared. */
+        if (symtable.isInSameScope(exp.name, global_level) == true) {
+			System.err.println("Error: Redeclaration of variable " + exp.name + " on line " + (exp.row + 1));
+        }
 
-        // check if the variable is redeclared by calling a function that checks if this variable name is defined in the current scope.
-
-        // create a node type
-        // probably: NodeType nd = new NodeType(exp.name, (Dec)exp, level);
-        // add it to the symbol table.
+        /* Add a global variable declaration */
+        NodeType nd = new NodeType(exp.name, (Dec)exp, global_level);
+        symtable.addNode(nd);
     }
 
 
@@ -123,7 +147,7 @@ public class SemanticAnalyzer {
 
 
     public void visit( IntExp exp) {
-        System.out.println(exp.value);
+        //System.out.println(exp.value);
     }
 
 
@@ -145,12 +169,13 @@ public class SemanticAnalyzer {
         visit(exp.decs);
         visit(exp.exps);
 
+
+
     }
 
 
     public void visit( FunctionDec exp) {
-    
-        visit(exp.type);
+       
 
         visit(exp.param_list);
         if (exp.body != null) {
