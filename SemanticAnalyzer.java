@@ -88,6 +88,7 @@ public class SemanticAnalyzer {
 
         /* Check if a variable is declared as VOID. */
         if (exp.type.type == NameTy.VOID) {
+            // System.err.println or System.out
             System.out.println("Error: variable" + exp.name +" defined as VOID on line "+ ((exp.row) + 1));
         }
         
@@ -105,6 +106,7 @@ public class SemanticAnalyzer {
 
         /* Check if the variable is declared as VOID. */
         if (exp.type.type == NameTy.VOID) {
+            // System.err.println or System.out
             System.out.println("Error: variable" + exp.name +" defined as VOID on line "+ ((exp.row) + 1));
         }
         
