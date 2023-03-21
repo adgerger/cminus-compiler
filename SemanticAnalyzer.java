@@ -15,6 +15,9 @@ public class SemanticAnalyzer {
 
     public int current_scope = 0;
 
+    /* Tracks the return type of a function. */
+    private int function_return_type;
+
 
     public SemanticAnalyzer(DecList parser) {
         
@@ -138,6 +141,8 @@ public class SemanticAnalyzer {
             symtable.addNode(nd);
         }
 
+        function_return_type = exp.type.type;
+
         /* Handle function body. */
         if (exp.body != null) {
             visit(exp.body, level + 1);
@@ -176,13 +181,41 @@ public class SemanticAnalyzer {
 
 
     public void visit( IfExp exp , int level) {
-        //exp.test.accept( this, current_scope );
+
         visit(exp.test, level);
-        //exp.thenpart.accept( this, current_scope );
-        visit(exp.thenpart, level);
-        if (exp.elsepart != null )
-        //exp.elsepart.accept( this, current_scope );
-        visit(exp.elsepart, level);
+        current_scope++;
+        symtable.indent(level+1);
+        
+        symtable.tableToString.append("Entering a new block:\n");
+        
+        if (exp.thenpart != null) {
+            visit(exp.thenpart, level+1);
+        }
+
+        printScope(level + 1);
+        symtable.deleteScope(current_scope);
+
+        symtable.indent(level + 1);
+        symtable.tableToString.append("Leaving the block.\n");
+
+        if (exp.elsepart != null ) {
+            symtable.indent(level + 1);
+            symtable.tableToString.append("Entering a new block\n");
+
+            visit(exp.elsepart, level + 1);
+
+            printScope(level + 1);
+
+            symtable.deleteScope(current_scope);
+
+            symtable.indent(level + 1);
+            symtable.tableToString.append("Exiting the block\n");
+
+        }
+
+        current_scope = current_scope - 1;
+        
+        return;
     }
 
 
@@ -273,7 +306,18 @@ public class SemanticAnalyzer {
 
 
     public void visit( IndexVar exp, int level) {
+        
+        System.out.println();
+        
         visit(exp.idx, level);
+         
+        if (symtable.isDeclared(exp.name, 1) == false) {
+            if (symtable.isDeclared(exp.name, 0) == true) {
+                System.err.println("Error: variable " + exp.name + " is not an array on line: " + exp.row); 
+            } else { 
+                System.err.println("Error: array " + exp.name + " undeclared on line: " + exp.row); 
+            }
+        }
     }
 
 
@@ -283,8 +327,27 @@ public class SemanticAnalyzer {
     
     
     public void visit( WhileExp exp, int level ) {
+
         visit(exp.condition, level);
-        visit(exp.body, level);
+
+        current_scope++;
+
+        symtable.indent(level + 1);
+        symtable.tableToString.append("Entering a new block.\n");
+        
+        if (exp.body != null) { 
+            visit(exp.body, level+1);
+        }
+
+        printScope(level + 1);
+        symtable.deleteScope(current_scope);
+
+        symtable.indent(level + 1);
+        symtable.tableToString.append("Leaving the block\n");
+
+        current_scope = current_scope - 1;
+
+        return;
     }
 
     
@@ -294,8 +357,19 @@ public class SemanticAnalyzer {
 
 
     public void visit( ReturnExp exp, int level) {
+        
+        if (function_return_type == NameTy.VOID) {
+            if (exp.val != null) {
+                System.out.println("Error: Function with VOID type is trying to return a value on line : " + (exp.row +1));
+            }
+        } else {
+            if (exp.val == null) {
+                System.out.println("Error: Function with non-VOID type must return a value on line : " + (exp.row + 1));
+            }
+        }
+        
         if (exp.val != null) {
-        visit(exp.val, level);
+            visit(exp.val, level);
         }
     }
 

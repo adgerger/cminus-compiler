@@ -5,8 +5,9 @@ int foo(int k) {
     int c;
     int d;
     int f;
-
-    h = 5;
+    while (c == 4) {
+        int f;
+    }
 }
 
 

@@ -10,9 +10,19 @@ import absyn.*;
 public class ShowTreeVisitor implements AbsynVisitor {
 
   final static int SPACES = 4;
+  private StringBuilder absTreeToString;
+
+
+  public ShowTreeVisitor () {   
+    absTreeToString = new StringBuilder();
+  }
 
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
+  }
+
+  public String getAbsTreeToString() {
+    return absTreeToString.toString();
   }
 
 
@@ -28,6 +38,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit( AssignExp exp, int level ) {
     indent( level );
     System.out.println( "AssignExp:" );
+    absTreeToString.append("AssignExp:\n");
     level++;
     
     exp.lhs.accept( this, level );
