@@ -33,29 +33,24 @@ public class SymbolTable {
         
     }
 
-    private String indent(int level) {
-        String result = "";
+    public void indent(int level) {
         for( int i = 0; i < level * SPACES; i++ ) {
-            result += (" ");   
+            tableToString.append(" ");   
         }
-        return result; 
     }
 
-    public String getSymbolTableToString() {
-        return tableToString.toString();
-    }    
 
     /*
      * Adds the table description with the given scope
-     * and current level (tracked with global_level in SemanticAnalyzer)
+     * and current level (tracked with level in SemanticAnalyzer)
      * to the tableToString string that contains Symbol Table info.
      */
-    public void printScope(int scope, int level) {
+    public void printScope(int level, int current_scope) {
         table.values().stream()
             .map(decs -> decs.get(decs.size() - 1))
-            .filter(node -> node.level == level)
+            .filter(node -> node.level == current_scope)
             .forEach(tmp -> {
-                indent(scope + 1);
+                indent(level + 1);
                 tableToString.append(tmp.name + ": " + NodeToString(tmp) + "\n");
             });
     }
@@ -74,7 +69,7 @@ public class SymbolTable {
         } else if (nd.def instanceof FunctionDec) {
             FunctionDec e = (FunctionDec) nd.def;
             if (e.param_list == null) return "() -> " + getNameType(e.type.type);
-            return "FunctionNode";
+            return "() -> " + getNameType(e.type.type);
             //return "(" + String.join(", ", e.param_list) + ") -> " + getNameType(e.type.type);
         }
 
@@ -109,7 +104,7 @@ public class SymbolTable {
     /*
      * Deletes all the nodes at the given scope.
      */
-    private void deleteScope(int scope) {
+    public void deleteScope(int scope) {
         Set<String> toRemove = new HashSet<>();
         
         for (Map.Entry<String, ArrayList<NodeType>> entry : table.entrySet()) {
@@ -129,6 +124,31 @@ public class SymbolTable {
         table.keySet().removeAll(toRemove);
     }
 
+    /*
+     * Checks if the variable has been declared before
+     * Takes an argument, which represented by the variable type:
+     *   0: for SimpleDec 
+     *   1: for Array
+     *   2: for Function
+     * Takes another argument String id, which is the name of the
+     * declaration to be checked.
+     */
+    public boolean isDeclared(String id, int type) {
+        NodeType tmp = getNode(id);
+        if (tmp != null) {
+            switch (type) {
+                case 0:
+                    return ((Dec)tmp.def instanceof SimpleDec);
+                case 1:
+                    return ((Dec)tmp.def instanceof ArrayDec);
+                case 2:
+                    return ((Dec)tmp.def instanceof FunctionDec);
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
 
 
     /*

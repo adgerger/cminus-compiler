@@ -1,8 +1,14 @@
 
 int a[1];
-int b;
 
-int c;
+int foo(int k) {
+    int c;
+    int d;
+    int f;
+
+    h = 5;
+}
+
 
 
 

@@ -31,8 +31,7 @@ class Main {
 
       if (SHOW_TABLE && result != null) {
         SemanticAnalyzer visitor = new SemanticAnalyzer((DecList)result);
-
-        
+        // string to be printed on the file is visitor.getSymbolTableString()
         System.out.println(visitor.getSymbolTableString());
 
       }
