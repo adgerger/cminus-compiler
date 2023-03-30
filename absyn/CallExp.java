@@ -17,5 +17,18 @@ public class CallExp extends Exp {
         visitor.visit( this, level );
     
     }
+
+    public int get_num_params() {
+        
+        int num = 0; 
+        ExpList expl = this.args; 
+        
+        while (expl != null) {
+            expl = expl.tail; 
+            num++; 
+        }
+        
+        return num; 
+    }
       
 }

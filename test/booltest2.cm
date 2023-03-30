@@ -1,15 +1,13 @@
 
-int a[1];
 
-int foo(int k) {
-    int c;
-    int d;
-    int f;
-    while (c == 4) {
-        int f;
-    }
+void foo(void) {
+  int a[2];  int x;
+  a[x] = 1;
+
+  void c;
+
+  return a;
 }
-
 
 
 

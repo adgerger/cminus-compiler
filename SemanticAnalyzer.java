@@ -311,8 +311,12 @@ public class SemanticAnalyzer {
         
         System.out.println();
         
+        if(exp.idx instanceof CallExp) {
+            System.err.println("Error: index for array " + exp.name + " cannot be a function call on line : " + exp.row); 
+        }
+
         visit(exp.idx, level);
-         
+        
         if (symtable.isDeclared(exp.name, 1) == false) {
             if (symtable.isDeclared(exp.name, 0) == true) {
                 System.err.println("Error: variable " + exp.name + " is not an array on line: " + exp.row); 
@@ -320,11 +324,38 @@ public class SemanticAnalyzer {
                 System.err.println("Error: array " + exp.name + " undeclared on line: " + exp.row); 
             }
         }
+
+        
+
+
     }
 
 
     public void visit( CallExp exp, int level) {
+
+        if (symtable.isDeclared(exp.name, 2) == false) {
+            System.err.println("TEst");
+            System.err.println("Error: Undefined variable '" + exp.name + "' on line: " + exp.row); 
+            return;
+        }
+
+        NodeType funDec;
+        if ((funDec = symtable.getFunctionDec(exp.name)) == null) return;
+        
+        int fun_type = ((FunctionDec)funDec.def).type.type;
+
+        int fun_param_count = ((FunctionDec)funDec.def).get_param_count();
+        int call_param_count = exp.get_num_params();
+
+        if (fun_param_count != call_param_count) {
+            System.err.println("Error: Number of arguments passed does not match the number of parameters needed/required.");
+        }
+
+        
+        //Dec parameter_count = ((FunctionDec)funDec.def).param_list.head;
+
         visit(exp.args, level); /* Print arguments */
+
     }
     
     
@@ -360,10 +391,10 @@ public class SemanticAnalyzer {
 
     public void visit( ReturnExp exp, int level) {
         
-        if (function_return_type == NameTy.VOID) {
-            if (exp.val != null) {
-                System.out.println("Error: Function with VOID type is trying to return a value on line : " + (exp.row +1));
-            }
+        if (function_return_type == 0) {
+
+            System.out.println("Error: Function with VOID type is trying to return a value on line : " + (exp.row +1));
+        
         } else {
             if (exp.val == null) {
                 System.out.println("Error: Function with non-VOID type must return a value on line : " + (exp.row + 1));

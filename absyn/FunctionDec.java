@@ -20,6 +20,18 @@ public class FunctionDec extends Dec {
   public void accept( AbsynVisitor visitor, int level ) {
     visitor.visit( this, level );
   }
+
+  public int get_param_count() {
+    VarDecList exp = param_list;
+    int num=0;
+
+    while(exp != null) {
+      num++;
+      exp = exp.tail;
+    }
+
+    return num;
+  }
 }
 
 

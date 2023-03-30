@@ -76,6 +76,17 @@ public class SymbolTable {
         return "NoNode";
     }
 
+    public NodeType getFunctionDec(String id) {
+        NodeType tmp = getNode(id);
+        if (tmp != null) {
+            if (tmp.def instanceof FunctionDec) {
+                return tmp;
+            }
+        }
+        return null;
+
+    }
+
 
 
     // Get the type
