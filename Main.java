@@ -3,7 +3,6 @@
   CIS*4650 Compilers - Checkpoint 2
 */
 
-   
 import java.io.*;
 import absyn.*;
 import java.util.Arrays;
@@ -12,7 +11,7 @@ import java.util.List;
 class Main {
   public static boolean SHOW_TREE = false; // Show the Abstract Syntax Tree
   public static boolean SHOW_TABLE = false; // Show the Symbol Table
-  
+
   public static String fileName = null;
   static public void main(String argv[]) {    
     /* Start the parser */
@@ -38,7 +37,7 @@ class Main {
 
       if (SHOW_TABLE && result != null) {
         SemanticAnalyzer visitor = new SemanticAnalyzer((DecList)result);
-        
+
         // Write string visitor.getSymbolTableString() to a file with .st extension
         for (String argument : argv) if (argument.endsWith(".cm")) fileName = argument;
         fileName = filter_cm(fileName, ".st");
