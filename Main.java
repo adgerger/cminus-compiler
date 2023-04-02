@@ -11,8 +11,10 @@ import java.util.List;
 class Main {
   public static boolean SHOW_TREE = false; // Show the Abstract Syntax Tree
   public static boolean SHOW_TABLE = false; // Show the Symbol Table
+  public static boolean GEN_ASSBLY = false; // Generate Assembly
 
   public static String fileName = null;
+
   static public void main(String argv[]) {    
     /* Start the parser */
     try {
@@ -21,7 +23,8 @@ class Main {
       
       SHOW_TREE  = List.of(argv).contains("-a") ? true : false;
       SHOW_TABLE  = List.of(argv).contains("-s") ? true : false;
-      
+      GEN_ASSBLY  = List.of(argv).contains("-c") ? true : false;
+
       Absyn result = (Absyn)(p.parse().value);
       
       if (SHOW_TREE && result != null) {
@@ -45,6 +48,12 @@ class Main {
         //System.out.println(visitor.getSymbolTableString());
       }
 
+      if (GEN_ASSBLY && result != null) {
+          CodeGen visitor = new CodeGen(fileName, (DecList)result);
+
+        
+      }
+
     } catch (Exception e) {
         /* do cleanup here -- possibly rethrow e */
         e.printStackTrace();
@@ -59,6 +68,9 @@ class Main {
       } else if (argument.equals("-s")) {
           System.out.println("Displaying Symbol Table");
           SHOW_TABLE = true;
+      } else if (argument.equals("-c")) {
+          System.out.println("Generating Assembly Code:");
+          GEN_ASSBLY = true;
       } else if (argument.endsWith(".cm")){
           fileName = argument;
       } else {

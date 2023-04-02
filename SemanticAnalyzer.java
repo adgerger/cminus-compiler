@@ -4,10 +4,6 @@ import absyn.*;
 
 /**
  * SemanticAnalyzer
- To DO:
--Give zeynep to-do
--Mail professor song for extension tell him u will get a doctors note
--push code to git
  */
 public class SemanticAnalyzer {
     
@@ -20,12 +16,14 @@ public class SemanticAnalyzer {
 
 
     public SemanticAnalyzer(DecList parser) {
+        System.out.println("OKAY THIS IS PRINTING");
         
         current_scope = 0;
 
         symtable = new SymbolTable();
         
         visit(parser, 0);
+
     }
 
     public void printScope(int level) {
