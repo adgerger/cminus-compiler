@@ -7,8 +7,9 @@ public class FunctionDec extends Dec {
   public String function; 
   public VarDecList param_list; 
   public CompoundExp body; 
+  public int funaddr;
 
-  public FunctionDec( int row, int col, NameTy type, String function, VarDecList param_list, CompoundExp body ) {
+  public FunctionDec( int row, int col, NameTy type, String function, VarDecList param_list, CompoundExp body) {
     this.row = row;
     this.col = col;
     this.type = type;
