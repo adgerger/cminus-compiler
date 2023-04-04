@@ -74,7 +74,7 @@ class Main {
       } else if (argument.endsWith(".cm")){
           fileName = argument;
       } else {
-          System.out.println("Error: Please enter a valid argument: {-a, -s}\n");
+          System.out.println("Error: Please enter a valid argument: {-a, -s, -c}\n");
       }
     }
   }
