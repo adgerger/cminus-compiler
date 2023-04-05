@@ -1,6 +1,8 @@
 
-java -cp /usr/share/java/cup.jar:. Main test/fac.cm  -c -s
-cat test/fac.st
+
+cp test/fac.cm test/fac2.cm
+java -cp /usr/share/java/cup.jar:. Main test/booltest.cm  -s -c 
+cat test.tm
 
 
 

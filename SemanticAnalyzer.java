@@ -16,7 +16,6 @@ public class SemanticAnalyzer {
 
 
     public SemanticAnalyzer(DecList parser) {
-        System.out.println("OKAY THIS IS PRINTING");
         
         current_scope = 0;
 
@@ -332,7 +331,7 @@ public class SemanticAnalyzer {
     public void visit( CallExp exp, int level) {
 
         if (symtable.isDeclared(exp.name, 2) == false) {
-            System.err.println("TEst");
+
             System.err.println("Error: Undefined variable '" + exp.name + "' on line: " + exp.row); 
             return;
         }

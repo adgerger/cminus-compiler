@@ -5,8 +5,10 @@ import java.util.ArrayList;
 
 public class CodeGen {
     public DecList result; 
-    public SymbolTable symbolTable; 
+    public SymbolTable symtable; 
     public String filename;
+
+    public StringBuilder codeDesc;
 
     // Special Registers
     public static final int PC = 7;
@@ -17,8 +19,10 @@ public class CodeGen {
 
     //Points to curr instr generating, may go back to earlier loc for backpatching
     public int emitLoc = 0;
+
     //Points to next available space so we can continue adding new instr
     public int highEmitLoc = 0; 
+    
     // Points to the bottom of the global stackframe dMem
     //Main function is the last declaration in a program: that’s where we set values for “entry” and “globalOffset”.
     public int globalOffset = 0;
@@ -27,9 +31,14 @@ public class CodeGen {
     public CodeGen(String filename, DecList result) {
         this.result = result; 
         this.filename = filename; 
-        this.symbolTable = new SymbolTable();
-    
-        visit(result);
+      
+        this.symtable = new SymbolTable();
+
+        codeDesc = new StringBuilder();
+
+
+
+        visit(result, false);
   }
 
   public void outputCode(String code) {
@@ -40,16 +49,13 @@ public class CodeGen {
       output = new PrintWriter(new FileOutputStream("test.tm", true)); //MAKE SURE TO CHANGE HARDCODED FILENAME
       output.printf(code);
       output.close();
-      System.out.println("I am testing Code Gen.\n");
     } catch( FileNotFoundException err) {
       err.printStackTrace();
     }
 
   }
 
-
   //Routines to generate different kinds of assembly instructions
-
 
   /*  Continue - Code Emitting Routines: Slide 24 - Lecture 11 */
   public void emitRO(String op, int dest, int r, int r1, String comment) {
@@ -65,6 +71,7 @@ public class CodeGen {
       outputCode("\t" + comment + "\n");
   }
 
+
   public void emitRM(String op, int r, int d, int s, String comment) {
     String output = emitLoc + ": " + op + " " + r + "," + d + "(" + s + ")";
 
@@ -77,6 +84,7 @@ public class CodeGen {
       }
   }
 
+
   public void emitRM_Abs(String op, int r, int a, String comment) {
     String output = emitLoc + ": " + op + " " + r + "," + (a - (emitLoc + 1)) + "(" + PC + ")";
 
@@ -88,8 +96,9 @@ public class CodeGen {
       highEmitLoc = emitLoc;
     }
   }
-    /*  Code Emitting Routines: Slide 26 - Lecture 11 */
-    public int emitSkip(int distance) {
+
+
+  public int emitSkip(int distance) {
         int i = emitLoc;
         emitLoc += distance;
 
@@ -99,6 +108,8 @@ public class CodeGen {
 
         return i;
   }
+
+
   public void emitBackup(int loc) {
         if(loc > highEmitLoc) {
           emitComment("BUG in emitBackup");
@@ -106,15 +117,17 @@ public class CodeGen {
         emitLoc = loc;
   }
 
+
   public void emitRestore() {
     emitLoc = highEmitLoc;
   }
 
-  //Routine to generate one line of comment
-  void emitComment(String comment) {
+
+  public void emitComment(String comment) {
       String output = "* " + comment + "\n";
       outputCode(output);
   } 
+
 
   public void emitOp(String op, int dest, int r, int r1, String comment) {
     String output = emitLoc + ": " + op + " " + dest + "," + r + "," + r1;
@@ -124,83 +137,186 @@ public class CodeGen {
     outputCode("\t" + comment + "\n");
   }
 
-  public void visit( Dec dec) {
+
+
+  public void visit( Dec dec, boolean isAddress) {
         // Check if the declaration is a variable or function declaration.
         if (dec instanceof VarDec) {
-            visit((VarDec)dec);
+            visit((VarDec)dec, false );
         } else if (dec instanceof FunctionDec) {
-            visit((FunctionDec)dec);
+            visit((FunctionDec)dec, false );
         }
     }
 
 
+  public void visit( DecList decList, boolean isAddress) {
 
+    try {
+    PrintWriter writer = new PrintWriter(this.filename);
+    writer.close();
+    } catch (FileNotFoundException err) {
+    err.printStackTrace();
+    }
 
-  public void visit( DecList decList) {
+    // Create two NodeType's with a function declaration one for input() one for output()
+    
+    // Check if the program contains a main function 
 
-        try {
-          PrintWriter writer = new PrintWriter(this.filename);
-          writer.close();
-        } catch (FileNotFoundException err) {
-          err.printStackTrace();
-        }
-        
-        // Create a new scope
-        // do current_scope++ ?
+    // Prelude for code generation, boolean isAddress
+    emitComment("Standard prelude:");
+    emitRM("LD  ", GP, 0, AC, " load gp with maxaddress");
+    emitRM("LDA ", FP, 0, GP, " copy to gp to fp");
+    emitRM("ST  ", 0, 0, 0, " clear location 0");
 
-        // Create two NodeType's with a function declaration one for input() one for output()
-      
+    int savedLoc = emitSkip(1);
 
-        // Maybe: Check if the program contains a main function 
-      
-        // Prelude for code generation
-        emitComment("Standard prelude:");
-        emitRM("LD  ", GP, 0, AC, " load gp with maxaddress");
-        emitRM("LDA ", FP, 0, GP, " copy to gp to fp");
-        emitRM("ST  ", 0, 0, 0, " clear location 0");
+    emitComment("Jump around I/O functions");
+    emitComment("Code for Input Routine");
+    emitRM("ST", 0, -1, FP, "Store return");
+    emitOp("IN", 0, 0, 0, "Input");
+    emitRM("LD", PC, -1, FP, "Return caller");
 
-        int savedLoc = emitSkip(1);
+    emitComment("Code for Output Routine");
+    emitRM("ST", 0, -1, FP, "Store return");
+    emitRM("LD", 0, -2, FP, "Load output value");
+    emitOp("OUT", 0, 0, 0, "Output");
+    emitRM("LD", 7, -1, FP, "Return caller");
 
-        emitComment("Jump around I/O functions");
-        emitComment("Code for Input Routine");
-        emitRM("ST", 0, -1, FP, "Store return");
-        emitOp("IN", 0, 0, 0, "Input");
-        emitRM("LD", PC, -1, FP, "Return caller");
-
-        emitComment("Code for Output Routine");
-        emitRM("ST", 0, -1, FP, "Store return");
-        emitRM("LD", 0, -2, FP, "Load output value");
-        emitOp("OUT", 0, 0, 0, "Output");
-        emitRM("LD", 7, -1, FP, "Return caller");
-
-        // Jump around I/O
-        int savedLoc2 = emitSkip(0);
-        emitBackup(savedLoc);
-        emitRM_Abs("LDA", PC, savedLoc2, "Jump around I/O code");
-        emitRestore();
-        emitComment("End of standard prelude.");
-          /*
-         // Traverse through all declarations in the program
+    // Jump around I/O
+    int savedLoc2 = emitSkip(0);
+    emitBackup(savedLoc);
+    emitRM_Abs("LDA", PC, savedLoc2, "Jump around I/O code");
+    emitRestore();
+    emitComment("End of standard prelude.");
+            
         while (decList != null) {
             if(decList.head != null){
-                visit(decList.head);
+                visit(decList.head, false);
             }
             decList = decList.tail;
         }
 
-        emitComment("Finale Generation");
-        emitRM("ST", FP, globalOffset, FP, "Push Old Frame Pointer");
-        emitRM("LDA", FP, globalOffset, FP, "Push frame");
-        emitRM("LDA", 0, 1, PC, "Load AC with return pointer");
-        //emitRM_Abs("LDA", PC, adr.address, "Jump to main location");
-        emitRM("LD", FP, 0, FP, "Pop frame");
-        emitOp("HALT", 0, 0, 0, "HALT");
-        */
+    }
+
+    public void visit( FunctionDec exp, int level, boolean isAddress) {
+       
+        symtable.addNode(new NodeType(filename, exp, level));
+        
+        return;
+    }
+
+    public void visit( Dec dec, int level, boolean isAddress) {
+        // Check if the declaration is a variable or function declaration.
+        if (dec instanceof VarDec) {
+            visit((VarDec)dec, level, false); //false ? 
+        } else if (dec instanceof FunctionDec) {
+            visit((FunctionDec)dec, level, false);
+        }
+    }
+
+
+    public void visit( VarDec exp , int level, boolean isAddress) {
+        
+    }
+
+
+    public void visit( SimpleDec exp, int level, boolean isAddress) {
+
+
+    }
+
+    public void visit( ArrayDec exp, int level, boolean isAddress) {
 
 
     }
 
 
+    public void visit( ExpList expList, int level, boolean isAddress ) {
+ 
+  
+    }
+
+
+    public void visit( AssignExp exp, int level, boolean isAddress) {    
+
+    }
+
+
+    public void visit( IfExp exp , int level, boolean isAddress) {
+        
+        return;
+    }
+
+
+    public void visit( IntExp exp, int level, boolean isAddress) {
+        //System.out.println(exp.value);
+    }
+
+    public void visit( OpExp exp, int level, boolean isAddress) {
+
+    }
+
+
+    public void visit( VarExp exp, int level, boolean isAddress) {
+
+    }
+
+
+    public void visit( CompoundExp exp, int level, boolean isAddress) {
+
+    }
+
+
+
+
+
+    public void visit( VarDecList exp , int level, boolean isAddress) {
+
+    }
+
+
+    public void visit( SimpleVar exp, int level , boolean isAddress) {
+        
+    }
+
+
+    public void visit( Var exp, int level, boolean isAddress ) {
+
+    }
+
+
+    public void visit( Exp exp, int level , boolean isAddress) {
+        
+    }
+
+
+    public void visit( IndexVar exp, int level, boolean isAddress) {
+        
+
+    }
+
+
+    public void visit( CallExp exp, int level, boolean isAddress) {
+
+
+    }
+    
+    
+    public void visit( WhileExp exp, int level, boolean isAddress ) {
+
+        return;
+    }
+
+    
+    public void visit( NilExp exp, int level, boolean isAddress ) {
+
+    }
+
+
+    public void visit( ReturnExp exp, int level, boolean isAddress) {
+        
+
+    }
 
 
 
